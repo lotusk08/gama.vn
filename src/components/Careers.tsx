@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Briefcase, 
@@ -12,90 +13,115 @@ import {
   Compass, 
   Award, 
   Send,
-  HelpCircle
+  HelpCircle,
+  Settings,
+  AlertCircle,
+  Copy,
+  RefreshCw,
+  X
 } from 'lucide-react';
-
-interface JobOpening {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-}
+import { JobOpening } from '../types';
+import { 
+  fetchCareers, 
+  submitJobApplication, 
+  checkPayloadConnection, 
+  resetLocalCareers, 
+  PAYLOAD_CMS_URL, 
+  PayloadStatus 
+} from '../lib/payload';
 
 export default function Careers() {
+  const [jobOpenings, setJobOpenings] = useState<JobOpening[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedJob, setSelectedJob] = useState<JobOpening | null>(null);
   const [formSuccess, setFormSuccess] = useState(false);
   const [formError, setFormError] = useState('');
   const [applicantName, setApplicantName] = useState('');
   const [applicantEmail, setApplicantEmail] = useState('');
+  const [applicantCv, setApplicantCv] = useState('');
   const [jobTitle, setJobTitle] = useState('');
+  const [showIntegrationModal, setShowIntegrationModal] = useState<boolean>(false);
+  const [copiedSchema, setCopiedSchema] = useState<boolean>(false);
+  const [cmsStatus, setCmsStatus] = useState<PayloadStatus>({
+    isConnected: false,
+    url: PAYLOAD_CMS_URL,
+    source: 'Local Demo Mode'
+  });
 
-  const jobOpenings: JobOpening[] = [
+  const loadJobData = async () => {
+    setLoading(true);
+    try {
+      const { jobs, source } = await fetchCareers();
+      setJobOpenings(jobs);
+      
+      const connection = await checkPayloadConnection();
+      setCmsStatus(connection);
+    } catch (err) {
+      console.error('Error fetching careers:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadJobData();
+  }, []);
+
+  const copyCareersSchema = () => {
+    const schemaText = `{
+  slug: 'careers',
+  admin: {
+    useAsTitle: 'title',
+  },
+  fields: [
+    { name: 'title', type: 'text', required: true },
+    { name: 'department', type: 'text', required: true },
+    { name: 'location', type: 'text', required: true },
     {
-      id: 'job-1',
-      title: 'Nhà hóa học cao cấp về Công thức Polymer',
-      department: 'Nghiên cứu & Phát triển (R&D)',
-      location: 'Phòng thí nghiệm GAMA (Nhà máy Bình Dương)',
-      type: 'Toàn thời gian',
-      description: 'Chúng tôi đang tìm kiếm một nhà hóa học polymer giàu kinh nghiệm để dẫn dắt thế hệ tiếp theo của công thức sơn phủ GAMA Chroma-Lock™ và Eco-Shield. Bạn sẽ quản lý quá trình tổng hợp khoa học, thử nghiệm độ bền thời tiết trong buồng mô phỏng và đánh giá mức độ tuân thủ tiêu chuẩn môi trường.',
-      responsibilities: [
-        'Thiết kế và tổng hợp các chất liên kết acrylic và polyurethane gốc nước cho độ bền tia cực tím vượt trội.',
-        'Tiến hành các thử nghiệm phân tích khả năng chịu thời tiết gia tốc, sương muối và khả năng chống mài mòn.',
-        'Phối hợp với các bộ phận sản xuất để mở rộng quy mô từ công thức phòng thí nghiệm lên sản xuất công nghiệp.',
-        'Đảm bảo tuân thủ nghiêm ngặt các tiêu chuẩn môi trường khu vực và các chỉ số kỹ thuật ISO 14001.'
-      ],
-      requirements: [
-        'Thạc sĩ hoặc Tiến sĩ về Hóa học hữu cơ, Khoa học Polymer, hoặc Kỹ thuật Hóa học.',
-        'Trên 5 năm kinh nghiệm thực tế R&D trong ngành chất phủ kiến trúc hoặc bảo vệ công nghiệp.',
-        'Kiến thức sâu rộng về phân tán sắc tố, chất điều chỉnh lưu biến và cơ chế liên kết chéo.',
-        'Hiểu biết rõ về tiêu chuẩn chịu thời tiết vùng nhiệt đới và các quy chuẩn xây dựng xanh.'
+      name: 'type',
+      type: 'select',
+      options: ['Toàn thời gian', 'Bán thời gian', 'Thực tập', 'Hợp đồng'],
+      required: true,
+      defaultValue: 'Toàn thời gian',
+    },
+    { name: 'description', type: 'textarea', required: true },
+    {
+      name: 'responsibilities',
+      type: 'array',
+      label: 'Responsibilities',
+      fields: [
+        {
+          name: 'responsibility',
+          type: 'text',
+          required: true,
+        }
       ]
     },
     {
-      id: 'job-2',
-      title: 'Kỹ sư Kinh doanh Kỹ thuật B2B',
-      department: 'Bộ phận Thương mại & Đối tác',
-      location: 'Văn phòng chính GAMA (TP. Hồ Chí Minh)',
-      type: 'Toàn thời gian',
-      description: 'Gia nhập đội ngũ phát triển doanh nghiệp để kết nối giữa tầm nhìn kiến trúc và hiệu suất khoa học. Bạn sẽ tư vấn cho các nhà phát triển bất động sản hàng đầu, kiến trúc sư trưởng và các nhà thầu xây dựng để áp dụng các hệ thống sơn cao cấp của GAMA.',
-      responsibilities: [
-        'Quản lý các tài khoản khách hàng B2B lớn, đối chiếu các đặc tả dự án với các dòng sản phẩm GAMA phù hợp.',
-        'Chuẩn bị hồ sơ kỹ thuật chi tiết, dự phóng hiệu quả kinh tế và chính sách bảo hành hiệu suất lâu dài.',
-        'Trực tiếp thuyết trình tại công trường, thực hiện các ứng dụng sơn mẫu và tổ chức các buổi hội thảo kiến trúc.',
-        'Hợp tác chặt chẽ với phòng thí nghiệm nghiên cứu để tinh chỉnh công thức cho các dự án vùng ven biển hoặc độ mặn cao.'
-      ],
-      requirements: [
-        'Tốt nghiệp Cử nhân chuyên ngành Kỹ thuật Hóa học, Khoa học Vật liệu, Kỹ thuật Xây dựng hoặc các ngành kỹ thuật liên quan.',
-        'Trên 3 năm kinh nghiệm trong lĩnh vực bán hàng kỹ thuật, tư vấn đặc tả kỹ thuật hoặc quản lý dự án trong ngành xây dựng.',
-        'Kỹ năng giao tiếp và đàm phán xuất sắc với kinh nghiệm xây dựng mối quan hệ doanh nghiệp lâu dài.',
-        'Mạng lưới quan hệ rộng rãi với các nhà thiết kế kiến trúc, kỹ sư kết cấu và nhà thầu chính là một lợi thế lớn.'
-      ]
-    },
-    {
-      id: 'job-3',
-      title: 'Trưởng nhóm Kiểm soát Chất lượng (QC)',
-      department: 'Vận hành Sản xuất',
-      location: 'Nhà máy thông minh GAMA 1',
-      type: 'Toàn thời gian',
-      description: 'Giám sát các tiêu chuẩn sản xuất để đảm bảo mỗi thùng sơn GAMA xuất xưởng đều tuân thủ các cam kết chất lượng vượt trội. Bạn sẽ quản lý phòng thí nghiệm đảm bảo chất lượng, vận hành các thiết bị thử nghiệm tự động và phê duyệt chứng nhận chất lượng.',
-      responsibilities: [
-        'Giám sát kiểm tra nguyên liệu đầu vào và phân tích mẫu thử nghiệm về độ phủ, độ nhớt và tốc độ khô.',
-        'Hiệu chuẩn máy quang phổ phòng thí nghiệm và thiết bị thử nghiệm cơ học để duy trì độ chính xác tuyệt đối.',
-        'Điều tra các sai lệch lô sản xuất và phối hợp với đội ngũ phát triển công thức để điều chỉnh đầu vào sản xuất.',
-        'Lập báo cáo nhật ký chất lượng hàng tháng và hỗ trợ các đợt kiểm định ISO 9001 và chứng nhận công trình xanh.'
-      ],
-      requirements: [
-        'Tốt nghiệp Cử nhân chuyên ngành Hóa học, Khoa học Vật liệu hoặc Kỹ thuật Công nghiệp.',
-        'Trên 3 năm kinh nghiệm kiểm soát chất lượng tại nhà máy sản xuất sơn, hóa chất hoặc polymer.',
-        'Thành thạo các phương pháp kiểm nghiệm ASTM, ISO và JIS cho các đặc tính vật lý và hóa học của màng sơn.',
-        'Tư duy chú trọng chi tiết, năng lực phân tích cao và kỹ năng giám sát tốt.'
+      name: 'requirements',
+      type: 'array',
+      label: 'Requirements',
+      fields: [
+        {
+          name: 'requirement',
+          type: 'text',
+          required: true,
+        }
       ]
     }
-  ];
+  ]
+}`;
+    navigator.clipboard.writeText(schemaText).then(() => {
+      setCopiedSchema(true);
+      setTimeout(() => setCopiedSchema(false), 2000);
+    });
+  };
+
+  const handleResetDemo = () => {
+    const freshJobs = resetLocalCareers();
+    setJobOpenings(freshJobs);
+  };
+
 
   const recruitmentSteps = [
     {
@@ -120,7 +146,7 @@ export default function Careers() {
     }
   ];
 
-  const handleApply = (e: React.FormEvent) => {
+  const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
     setFormSuccess(false);
@@ -130,13 +156,26 @@ export default function Careers() {
       return;
     }
 
-    setFormSuccess(true);
-    setApplicantName('');
-    setApplicantEmail('');
-    setTimeout(() => {
-      setFormSuccess(false);
-      setSelectedJob(null);
-    }, 2500);
+    try {
+      await submitJobApplication(
+        selectedJob?.id || '',
+        selectedJob?.title || '',
+        applicantName,
+        applicantEmail,
+        applicantCv
+      );
+
+      setFormSuccess(true);
+      setApplicantName('');
+      setApplicantEmail('');
+      setApplicantCv('');
+      setTimeout(() => {
+        setFormSuccess(false);
+        setSelectedJob(null);
+      }, 2500);
+    } catch (err: any) {
+      setFormError(`Gửi hồ sơ thất bại: ${err.message || err}`);
+    }
   };
 
   return (
@@ -255,9 +294,34 @@ export default function Careers() {
         <div className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-100 pb-6 mb-10 gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] block mb-2 font-sans">
-                • VỊ TRÍ ĐANG TUYỂN DỤNG
-              </span>
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] font-sans">
+                  • VỊ TRÍ ĐANG TUYỂN DỤNG
+                </span>
+                
+                {/* CMS Connection Indicator Badge */}
+                <button
+                  onClick={() => setShowIntegrationModal(true)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-tight font-mono transition-all border shadow-sm cursor-pointer ${
+                    cmsStatus.isConnected 
+                      ? 'bg-[#EEF5ED] text-[#0A4E35] border-[#0A4E35]/20 hover:border-[#0A4E35]/40' 
+                      : PAYLOAD_CMS_URL 
+                        ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/50' 
+                        : 'bg-[#B48F57]/15 text-[#B48F57] border-[#B48F57]/20 hover:bg-[#B48F57]/25'
+                  }`}
+                  title="Click to view Payload CMS integration details"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${cmsStatus.isConnected ? 'bg-emerald-500 animate-pulse' : PAYLOAD_CMS_URL ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                  <span>
+                    {cmsStatus.isConnected 
+                      ? 'Cổng Payload CMS Live' 
+                      : PAYLOAD_CMS_URL 
+                        ? 'Lỗi kết nối Payload CMS' 
+                        : 'Mẫu lưu trữ cục bộ'}
+                  </span>
+                  <Settings className="w-3 h-3 ml-0.5 opacity-70" />
+                </button>
+              </div>
               <h3 className="text-2xl sm:text-3xl font-serif font-extrabold text-[#0A4E35] tracking-tight">
                 Cơ hội nghề nghiệp rộng mở
               </h3>
@@ -268,50 +332,63 @@ export default function Careers() {
           </div>
 
           {/* Job Openings List Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {jobOpenings.map((job) => (
-              <div 
-                key={job.id}
-                className="bg-white rounded-[24px] p-6 sm:p-8 border border-gray-150 hover:border-[#B48F57] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                    <span className="text-[9px] bg-[#EEF5ED] text-[#0A4E35] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
-                      {job.department}
-                    </span>
-                    <span className="text-[10px] text-gray-400 font-bold flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-[#B48F57]" />
-                      {job.type}
-                    </span>
-                  </div>
-
-                  <h4 className="font-serif font-extrabold text-lg sm:text-xl text-[#0A4E35] group-hover:text-[#B48F57] transition-colors leading-tight mb-3">
-                    {job.title}
-                  </h4>
-
-                  <div className="text-[11px] text-gray-400 font-bold flex items-center gap-1.5 mb-4">
-                    <MapPin className="w-3.5 h-3.5 text-[#B48F57]" />
-                    {job.location}
-                  </div>
-
-                  <p className="text-xs text-gray-500 font-sans leading-relaxed mb-6 line-clamp-4 font-light">
-                    {job.description}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedJob(job);
-                    setJobTitle(job.title);
-                  }}
-                  className="w-full mt-4 py-3 bg-[#EEF5ED] hover:bg-[#0A4E35] group-hover:bg-[#0A4E35] text-[#0A4E35] group-hover:text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer"
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 w-full">
+              <RefreshCw className="w-8 h-8 text-[#0A4E35] animate-spin mb-4" />
+              <p className="text-sm text-gray-500 font-sans">Đang tải danh sách vị trí tuyển dụng...</p>
+            </div>
+          ) : jobOpenings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 w-full text-center">
+              <Briefcase className="w-12 h-12 text-[#B48F57]/45 mb-4" />
+              <p className="text-sm font-bold text-[#0A4E35] mb-1">Không tìm thấy vị trí tuyển dụng nào</p>
+              <p className="text-xs text-gray-400 max-w-sm">Hiện tại chưa có vị trí ứng tuyển nào được đăng tải trên hệ thống.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {jobOpenings.map((job) => (
+                <div 
+                  key={job.id}
+                  className="bg-white rounded-[24px] p-6 sm:p-8 border border-gray-150 hover:border-[#B48F57] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                 >
-                  <span>Ứng tuyển ngay</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </button>
-              </div>
-            ))}
-          </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <span className="text-[9px] bg-[#EEF5ED] text-[#0A4E35] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                        {job.department}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-bold flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#B48F57]" />
+                        {job.type}
+                      </span>
+                    </div>
+
+                    <h4 className="font-serif font-extrabold text-lg sm:text-xl text-[#0A4E35] group-hover:text-[#B48F57] transition-colors leading-tight mb-3">
+                      {job.title}
+                    </h4>
+
+                    <div className="text-[11px] text-gray-400 font-bold flex items-center gap-1.5 mb-4">
+                      <MapPin className="w-3.5 h-3.5 text-[#B48F57]" />
+                      {job.location}
+                    </div>
+
+                    <p className="text-xs text-gray-500 font-sans leading-relaxed mb-6 line-clamp-4 font-light">
+                      {job.description}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedJob(job);
+                      setJobTitle(job.title);
+                    }}
+                    className="w-full mt-4 py-3 bg-[#EEF5ED] hover:bg-[#0A4E35] group-hover:bg-[#0A4E35] text-[#0A4E35] group-hover:text-white rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Ứng tuyển ngay</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* JOB DETAILS & APPLICATION MODAL */}
@@ -432,6 +509,8 @@ export default function Careers() {
                           <input 
                             type="text" 
                             placeholder="Ví dụ: https://linkedin.com/in/username hoặc liên kết Drive" 
+                            value={applicantCv}
+                            onChange={(e) => setApplicantCv(e.target.value)}
                             className="bg-slate-50 px-4 py-2.5 rounded-xl border border-gray-200 text-xs text-[#0A4E35] outline-none focus:border-[#0A4E35] focus:bg-white transition-all"
                           />
                         </div>
@@ -460,17 +539,162 @@ export default function Careers() {
             </div>
           )}
         </AnimatePresence>
+
+        {/* 2. PAYLOAD CMS CONNECTION STATUS & HELP MODAL */}
+        <AnimatePresence>
+          {showIntegrationModal && (
+            <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white rounded-[24px] w-full max-w-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh]"
+              >
+                <div className="bg-[#0A4E35] text-white p-6 relative">
+                  <button
+                    onClick={() => setShowIntegrationModal(false)}
+                    className="absolute top-6 right-6 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  <div className="flex gap-2 items-center text-xs font-bold text-[#B48F57] uppercase tracking-widest mb-1.5 font-mono">
+                    <Settings className="w-4 h-4" />
+                    <span>Payload CMS Careers Integration Ledger</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white">
+                    API Configuration Guidelines
+                  </h3>
+                </div>
+
+                <div className="p-6 overflow-y-auto max-h-[60vh] flex flex-col gap-6 text-xs sm:text-sm text-gray-600 font-sans leading-relaxed">
+                  
+                  {/* Status Block */}
+                  <div className="bg-slate-50 border border-gray-150 rounded-2xl p-5">
+                    <h4 className="font-bold text-[#0A4E35] uppercase tracking-wide text-xs mb-3 font-mono">CONNECTION TELEMETRY:</h4>
+                    <div className="flex flex-col gap-2.5 text-xs">
+                      <div className="flex justify-between items-center pb-2 border-b border-gray-200/50">
+                        <span className="text-gray-400 font-bold">API STATUS:</span>
+                        <span className={`font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider ${cmsStatus.isConnected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
+                          {cmsStatus.isConnected ? '● ACTIVE PIPELINE' : '● FALLBACK DEMO MODE'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center pb-2 border-b border-gray-200/50">
+                        <span className="text-gray-400 font-bold">CONFIGURED API URL:</span>
+                        <span className="font-mono text-[#0A4E35] bg-[#EEF5ED] px-2 py-1 rounded select-all break-all max-w-xs md:max-w-md text-right">
+                          {PAYLOAD_CMS_URL || '(VITE_PAYLOAD_CMS_URL Not Defined)'}
+                        </span>
+                      </div>
+
+                      {cmsStatus.error && (
+                        <div className="flex flex-col gap-1 p-2.5 bg-rose-50 border border-rose-200/70 rounded-lg text-rose-700 font-mono text-[11px] mt-1">
+                          <span className="font-bold">LAST CONNECTION ERROR:</span>
+                          <span className="break-all">{cmsStatus.error}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Step-by-Step Instructions */}
+                  <div className="flex flex-col gap-3">
+                    <h4 className="font-bold text-[#0A4E35] text-xs uppercase tracking-widest font-sans">1. How to Link Your Payload CMS</h4>
+                    <p className="text-xs">
+                      This application uses client-side environment configurations. To hook up your live Payload CMS instance:
+                    </p>
+                    <ol className="list-decimal pl-5 flex flex-col gap-2 text-xs">
+                      <li>Open the <strong>Settings (API Keys)</strong> menu in the AI Studio sidebar dashboard.</li>
+                      <li>Define a secret/environment variable named: <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">VITE_PAYLOAD_CMS_URL</code>.</li>
+                      <li>Set the value to your hosted CMS root URL (e.g., <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">https://payload.gamacorp.com</code>).</li>
+                      <li>Recompile the application to update client bundle settings. The connection badge will instantly glow green!</li>
+                    </ol>
+                  </div>
+
+                  {/* Copyable Schema Config Block */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-[#0A4E35] text-xs uppercase tracking-widest font-sans">2. Ideal Collection Schema Config</h4>
+                      <button
+                        onClick={copyCareersSchema}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-[#EEF5ED] text-[#0A4E35] rounded-lg text-[11px] font-bold tracking-tight border border-gray-200 transition-colors"
+                      >
+                        {copiedSchema ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedSchema ? 'Copied' : 'Copy Config'}</span>
+                      </button>
+                    </div>
+                    <p className="text-xs">
+                      For perfect data mapping, configure your Payload CMS collection <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">careers</code> with this exact schema layout:
+                    </p>
+                    <pre className="p-4 bg-slate-900 text-[#EEF5ED] rounded-xl font-mono text-[10px] sm:text-[11px] overflow-x-auto border border-slate-950 max-h-48 leading-relaxed">
+{`import { CollectionConfig } from 'payload/types';
+
+const Careers: CollectionConfig = {
+  slug: 'careers',
+  admin: {
+    useAsTitle: 'title',
+  },
+  fields: [
+    { name: 'title', type: 'text', required: true },
+    { name: 'department', type: 'text', required: true },
+    { name: 'location', type: 'text', required: true },
+    {
+      name: 'type',
+      type: 'select',
+      options: ['Toàn thời gian', 'Bán thời gian', 'Thực tập', 'Hợp đồng'],
+      required: true,
+      defaultValue: 'Toàn thời gian',
+    },
+    { name: 'description', type: 'textarea', required: true },
+    {
+      name: 'responsibilities',
+      type: 'array',
+      label: 'Responsibilities',
+      fields: [
+        {
+          name: 'responsibility',
+          type: 'text',
+          required: true,
+        }
+      ]
+    },
+    {
+      name: 'requirements',
+      type: 'array',
+      label: 'Requirements',
+      fields: [
+        {
+          name: 'requirement',
+          type: 'text',
+          required: true,
+        }
+      ]
+    }
+  ]
+};
+
+export default Careers;`}
+                    </pre>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-slate-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                  <button
+                    onClick={handleResetDemo}
+                    className="px-4 py-2 text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-full text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer border border-rose-200/50"
+                  >
+                    Reset Local Cache
+                  </button>
+                  <button
+                    onClick={() => setShowIntegrationModal(false)}
+                    className="px-6 py-2.5 bg-[#0A4E35] text-white hover:bg-[#B48F57] rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Close Ledger Panel
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
-  );
-}
-
-// Custom Close Icon component because Lucide-React X is imported above
-function X({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }

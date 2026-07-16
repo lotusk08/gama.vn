@@ -1,4 +1,4 @@
-import { BlogPost } from '../types';
+import { BlogPost, JobOpening } from '../types';
 
 // Retrieve the Payload CMS URL from Vite environment variables.
 // Users can configure this in their local environment or AI Studio settings.
@@ -282,4 +282,206 @@ export async function createBlogPost(postData: Omit<BlogPost, 'id' | 'date'>): P
 export function resetLocalPosts(): BlogPost[] {
   localStorage.removeItem('gama_local_posts');
   return INITIAL_BLOG_POSTS;
+}
+
+// ==========================================
+// Careers Integration
+// ==========================================
+
+export const INITIAL_JOB_OPENINGS: JobOpening[] = [
+  {
+    id: 'job-1',
+    title: 'Nhà hóa học cao cấp về Công thức Polymer',
+    department: 'Nghiên cứu & Phát triển (R&D)',
+    location: 'Phòng thí nghiệm GAMA (Nhà máy Bình Dương)',
+    type: 'Toàn thời gian',
+    description: 'Chúng tôi đang tìm kiếm một nhà hóa học polymer giàu kinh nghiệm để dẫn dắt thế hệ tiếp theo của công thức sơn phủ GAMA Chroma-Lock™ và Eco-Shield. Bạn sẽ quản lý quá trình tổng hợp khoa học, thử nghiệm độ bền thời tiết trong buồng mô phỏng và đánh giá mức độ tuân thủ tiêu chuẩn môi trường.',
+    responsibilities: [
+      'Thiết kế và tổng hợp các chất liên kết acrylic và polyurethane gốc nước cho độ bền tia cực tím vượt trội.',
+      'Tiến hành các thử nghiệm phân tích khả năng chịu thời tiết gia tốc, sương muối và khả năng chống mài mòn.',
+      'Phối hợp với các bộ phận sản xuất để mở rộng quy mô từ công thức phòng thí nghiệm lên sản xuất công nghiệp.',
+      'Đảm bảo tuân thủ nghiêm ngặt các tiêu chuẩn môi trường khu vực và các chỉ số kỹ thuật ISO 14001.'
+    ],
+    requirements: [
+      'Thạc sĩ hoặc Tiến sĩ về Hóa học hữu cơ, Khoa học Polymer, hoặc Kỹ thuật Hóa học.',
+      'Trên 5 năm kinh nghiệm thực tế R&D trong ngành chất phủ kiến trúc hoặc bảo vệ công nghiệp.',
+      'Kiến thức sâu rộng về phân tán sắc tố, chất điều chỉnh lưu biến và cơ chế liên kết chéo.',
+      'Hiểu biết rõ về tiêu chuẩn chịu thời tiết vùng nhiệt đới và các quy chuẩn xây dựng xanh.'
+    ]
+  },
+  {
+    id: 'job-2',
+    title: 'Kỹ sư Kinh doanh Kỹ thuật B2B',
+    department: 'Bộ phận Thương mại & Đối tác',
+    location: 'Văn phòng chính GAMA (TP. Hồ Chí Minh)',
+    type: 'Toàn thời gian',
+    description: 'Gia nhập đội ngũ phát triển doanh nghiệp để kết nối giữa tầm nhìn kiến trúc và hiệu suất khoa học. Bạn sẽ tư vấn cho các nhà phát triển bất động sản hàng đầu, kiến trúc sư trưởng và các nhà thầu xây dựng để áp dụng các hệ thống sơn cao cấp của GAMA.',
+    responsibilities: [
+      'Quản lý các tài khoản khách hàng B2B lớn, đối chiếu các đặc tả dự án với các dòng sản phẩm GAMA phù hợp.',
+      'Chuẩn bị hồ sơ kỹ thuật chi tiết, dự phóng hiệu quả kinh tế và chính sách bảo hành hiệu suất lâu dài.',
+      'Trực tiếp thuyết trình tại công trường, thực hiện các ứng dụng sơn mẫu và tổ chức các buổi hội thảo kiến trúc.',
+      'Hợp tác chặt chẽ với phòng thí nghiệm nghiên cứu để tinh chỉnh công thức cho các dự án vùng ven biển hoặc độ mặn cao.'
+    ],
+    requirements: [
+      'Tốt nghiệp Cử nhân chuyên ngành Kỹ thuật Hóa học, Khoa học Vật liệu, Kỹ thuật Xây dựng hoặc các ngành kỹ thuật liên quan.',
+      'Trên 3 năm kinh nghiệm trong lĩnh vực bán hàng kỹ thuật, tư vấn đặc tả kỹ thuật hoặc quản lý dự án trong ngành xây dựng.',
+      'Kỹ năng giao tiếp và đàm phán xuất sắc với kinh nghiệm xây dựng mối quan hệ doanh nghiệp lâu dài.',
+      'Mạng lưới quan hệ rộng rãi với các nhà thiết kế kiến trúc, kỹ sư kết cấu và nhà thầu chính là một lợi thế lớn.'
+    ]
+  },
+  {
+    id: 'job-3',
+    title: 'Trưởng nhóm Kiểm soát Chất lượng (QC)',
+    department: 'Vận hành Sản xuất',
+    location: 'Nhà máy thông minh GAMA 1',
+    type: 'Toàn thời gian',
+    description: 'Giám sát các tiêu chuẩn sản xuất để đảm bảo mỗi thùng sơn GAMA xuất xưởng đều tuân thủ các cam kết chất lượng vượt trội. Bạn sẽ quản lý phòng thí nghiệm đảm bảo chất lượng, vận hành các thiết bị thử nghiệm tự động và phê duyệt chứng nhận chất lượng.',
+    responsibilities: [
+      'Giám sát kiểm tra nguyên liệu đầu vào và phân tích mẫu thử nghiệm về độ phủ, độ nhớt và tốc độ khô.',
+      'Hiệu chuẩn máy quang phổ phòng thí nghiệm và thiết bị thử nghiệm cơ học để duy trì độ chính xác tuyệt đối.',
+      'Điều tra các sai lệch lô sản xuất và phối hợp với đội ngũ phát triển công thức để điều chỉnh đầu vào sản xuất.',
+      'Lập báo cáo nhật ký chất lượng hàng tháng và hỗ trợ các đợt kiểm định ISO 9001 và chứng nhận công trình xanh.'
+    ],
+    requirements: [
+      'Tốt nghiệp Cử nhân chuyên ngành Hóa học, Khoa học Vật liệu hoặc Kỹ thuật Công nghiệp.',
+      'Trên 3 năm kinh nghiệm kiểm soát chất lượng tại nhà máy sản xuất sơn, hóa chất hoặc polymer.',
+      'Thành thạo các phương pháp kiểm nghiệm ASTM, ISO và JIS cho các đặc tính vật lý và hóa học của màng sơn.',
+      'Tư duy chú trọng chi tiết, năng lực phân tích cao và kỹ năng giám sát tốt.'
+    ]
+  }
+];
+
+function transformPayloadJob(doc: any): JobOpening {
+  const mapStringArray = (arr: any, key: string): string[] => {
+    if (!arr || !Array.isArray(arr)) return [];
+    return arr.map((item: any) => {
+      if (typeof item === 'string') return item;
+      if (item && typeof item === 'object') {
+        return item[key] || item.text || item.value || JSON.stringify(item);
+      }
+      return '';
+    }).filter(Boolean);
+  };
+
+  return {
+    id: doc.id || String(doc._id || Math.random()),
+    title: doc.title || 'Untitled Position',
+    department: doc.department || 'General',
+    location: doc.location || 'GAMA Office',
+    type: doc.type || 'Toàn thời gian',
+    description: doc.description || '',
+    requirements: mapStringArray(doc.requirements, 'requirement'),
+    responsibilities: mapStringArray(doc.responsibilities, 'responsibility')
+  };
+}
+
+export async function fetchCareers(): Promise<{ jobs: JobOpening[]; source: 'Payload CMS' | 'Local Demo Mode'; error?: string }> {
+  if (!PAYLOAD_CMS_URL) {
+    const saved = localStorage.getItem('gama_local_careers');
+    if (saved) {
+      try {
+        return { jobs: JSON.parse(saved), source: 'Local Demo Mode' };
+      } catch {
+        // ignore corruption
+      }
+    }
+    return { jobs: INITIAL_JOB_OPENINGS, source: 'Local Demo Mode' };
+  }
+
+  const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
+  try {
+    const response = await fetch(`${baseUrl}/api/careers?limit=100&depth=1`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data && Array.isArray(data.docs)) {
+      const mappedJobs = data.docs.map(transformPayloadJob);
+      return { jobs: mappedJobs, source: 'Payload CMS' };
+    } else {
+      throw new Error('Response format is missing standard "docs" array');
+    }
+  } catch (err: any) {
+    console.warn('Payload CMS fetch careers failed, falling back to local careers:', err);
+    const saved = localStorage.getItem('gama_local_careers');
+    let localJobs = INITIAL_JOB_OPENINGS;
+    if (saved) {
+      try {
+        localJobs = JSON.parse(saved);
+      } catch {}
+    }
+    return { 
+      jobs: localJobs, 
+      source: 'Local Demo Mode', 
+      error: `Failed to fetch from Payload CMS (${err.message || err}). Displaying local backups.` 
+    };
+  }
+}
+
+export async function submitJobApplication(
+  jobId: string,
+  jobTitle: string,
+  name: string,
+  email: string,
+  cvUrl: string
+): Promise<{ success: boolean; source: 'Payload CMS' | 'Local Demo Mode' }> {
+  if (PAYLOAD_CMS_URL) {
+    const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
+    try {
+      const response = await fetch(`${baseUrl}/api/submissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          jobId,
+          jobTitle,
+          name,
+          email,
+          cvUrl
+        })
+      });
+
+      if (response.ok) {
+        return { success: true, source: 'Payload CMS' };
+      } else {
+        console.warn(`Payload CMS application POST failed with status ${response.status}`);
+      }
+    } catch (err) {
+      console.warn('Payload CMS application POST failed, falling back:', err);
+    }
+  }
+
+  const saved = localStorage.getItem('gama_local_applications');
+  let applications = [];
+  if (saved) {
+    try {
+      applications = JSON.parse(saved);
+    } catch {}
+  }
+
+  applications.push({
+    id: `app-${Date.now()}`,
+    jobId,
+    jobTitle,
+    name,
+    email,
+    cvUrl,
+    date: new Date().toISOString()
+  });
+
+  localStorage.setItem('gama_local_applications', JSON.stringify(applications));
+  return { success: true, source: 'Local Demo Mode' };
+}
+
+export function resetLocalCareers(): JobOpening[] {
+  localStorage.removeItem('gama_local_careers');
+  localStorage.removeItem('gama_local_applications');
+  return INITIAL_JOB_OPENINGS;
 }

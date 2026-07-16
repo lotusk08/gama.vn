@@ -1,8 +1,7 @@
+"use client";
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, ChevronDown, CheckCircle, Paintbrush, ShieldCheck, Leaf } from 'lucide-react';
-
-const heroBanner = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80';
 
 interface HeroProps {
   onExploreServices: () => void;
@@ -10,6 +9,23 @@ interface HeroProps {
 }
 
 export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
+  const [heroBanner, setHeroBanner] = React.useState('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80');
+
+  React.useEffect(() => {
+    async function fetchHeroImage() {
+      try {
+        const res = await fetch('/api/media?where[alt][equals]=hero-banner');
+        const data = await res.json();
+        if (data.docs && data.docs.length > 0) {
+          setHeroBanner(data.docs[0].url);
+        }
+      } catch (err) {
+        console.error('Error fetching hero banner:', err);
+      }
+    }
+    fetchHeroImage();
+  }, []);
+
   return (
     <section className="relative min-h-screen pt-44 pb-32 flex items-center bg-[#EEF5ED]/50 overflow-hidden">
       {/* Background Decorative Elements representing Color & Engineering */}

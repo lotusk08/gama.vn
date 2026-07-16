@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Cpu, FlaskConical, Sun, Shield, Sparkles, HelpCircle, Eye, ArrowUpRight, CheckCircle2, ChevronRight } from 'lucide-react';
 
@@ -14,6 +15,37 @@ interface InnovationTech {
 }
 
 export default function Innovation() {
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({
+    'cool-shield': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
+    'pure-shield': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+    'easy-wash': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+  });
+
+  useEffect(() => {
+    async function fetchInnovationImages() {
+      try {
+        const res = await fetch('/api/media?where[alt][in]=innovation-1,innovation-2,innovation-3');
+        const data = await res.json();
+        if (data.docs && data.docs.length > 0) {
+          const map: Record<string, string> = {
+            'cool-shield': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
+            'pure-shield': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+            'easy-wash': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+          };
+          data.docs.forEach((doc: any) => {
+            if (doc.alt === 'innovation-1') map['cool-shield'] = doc.url;
+            if (doc.alt === 'innovation-2') map['pure-shield'] = doc.url;
+            if (doc.alt === 'innovation-3') map['easy-wash'] = doc.url;
+          });
+          setImageUrls(map);
+        }
+      } catch (err) {
+        console.error('Error fetching innovation images:', err);
+      }
+    }
+    fetchInnovationImages();
+  }, []);
+
   const technologies: InnovationTech[] = [
     {
       id: 'cool-shield',
@@ -204,7 +236,7 @@ export default function Innovation() {
             <div className="lg:col-span-5 flex flex-col gap-6">
               <div className="relative rounded-[32px] overflow-hidden border-8 border-white shadow-xl h-[360px] bg-slate-100 flex items-center justify-center">
                 <img
-                  src={activeTech.illustrationUrl}
+                  src={imageUrls[activeTech.id] || activeTech.illustrationUrl}
                   alt={activeTech.name}
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                 />

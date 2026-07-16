@@ -53,3 +53,15 @@ export interface ProcessStep {
   description: string;
   subSteps: { title: string; desc: string }[];
 }
+
+export interface JobOpening {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+}
+

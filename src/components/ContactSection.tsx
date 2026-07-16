@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, CheckCircle, Send, Globe, Star, Award, BookOpen, Shield, Users, MessageSquare, Handshake } from 'lucide-react';

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Sun, Sunset, Sunrise, Eye, Paintbrush, ArrowUpRight } from 'lucide-react';
 
@@ -12,6 +13,22 @@ interface ColorShade {
 }
 
 export default function ColorOfTheYear() {
+  const [bgImage, setBgImage] = useState("https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80");
+
+  useEffect(() => {
+    async function fetchBgImage() {
+      try {
+        const res = await fetch('/api/media?where[alt][equals]=color-year');
+        const data = await res.json();
+        if (data.docs && data.docs.length > 0) {
+          setBgImage(data.docs[0].url);
+        }
+      } catch (err) {
+        console.error('Error fetching color of the year image:', err);
+      }
+    }
+    fetchBgImage();
+  }, []);
   const shades: ColorShade[] = [
     {
       id: 'deep-ocean',
@@ -170,7 +187,7 @@ export default function ColorOfTheYear() {
             <div className="relative rounded-[32px] overflow-hidden border-8 border-white shadow-2xl h-[420px] bg-slate-100 flex items-center justify-center group">
               {/* Image background representing living room wall with customizable lighting and color overlays */}
               <img
-                src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80"
+                src={bgImage}
                 alt="GAMA Premium Color living room design"
                 className="w-full h-full object-cover select-none pointer-events-none"
               />

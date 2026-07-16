@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Check, Linkedin, Facebook, Instagram, Twitter, ShieldCheck, Star } from 'lucide-react';
 import GamaLogo from './GamaLogo';

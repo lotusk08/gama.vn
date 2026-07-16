@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Search, Target, Paintbrush, Layers, Shield, Sparkles, RefreshCw, Eye, ClipboardCheck, FlaskConical, Truck, HardHat, Droplets } from 'lucide-react';
