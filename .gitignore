@@ -20,3 +20,4 @@ public/media/
 
 # Misc
 atlas-credentials.env
+.vercel
