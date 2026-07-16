@@ -1,0 +1,6 @@
+{
+  "name": "Tập Đoàn GAMA",
+  "description": "Cổng thông tin chính thức của Công ty TNHH Tập Đoàn Gama (GAMA GROUP), nhà sản xuất sơn nước chuẩn quốc tế ISO 9001 và nhà phân phối thiết bị vệ sinh sang trọng hàng đầu Việt Nam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
