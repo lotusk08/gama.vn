@@ -1,17 +1,15 @@
 import { BlogPost, JobOpening } from '../types';
 
-// Retrieve the Payload CMS URL. If undefined, defaults to the current origin (since Next.js and Payload run on the same server).
+// Retrieve the Payload CMS URL.
+// In the browser: always use the current origin — Payload runs on the same server as Next.js.
+// Server-side (SSR/RSC): use NEXT_PUBLIC_SERVER_URL env var.
 const getCmsUrl = (): string => {
   if (typeof window !== 'undefined') {
+    // Always use current origin in browser — avoids localhost leaking from SSR env vars
     return window.location.origin;
   }
-  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_PAYLOAD_CMS_URL) {
-    return process.env.NEXT_PUBLIC_PAYLOAD_CMS_URL;
-  }
-  if (typeof process !== 'undefined' && process.env?.VITE_PAYLOAD_CMS_URL) {
-    return process.env.VITE_PAYLOAD_CMS_URL;
-  }
-  return 'http://localhost:3000';
+  // Server-side: use the configured server URL
+  return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 };
 
 export const PAYLOAD_CMS_URL = getCmsUrl();
@@ -93,28 +91,37 @@ export function lexicalToHtml(node: any): string {
 
   if (type === 'paragraph') {
     const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
-    return `<p className="mb-4">${content}</p>`;
+    if (!content.trim()) return '';
+    return `<p style="margin-bottom:1rem;line-height:1.8;">${content}</p>`;
   }
 
   if (type === 'heading') {
     const tag = node.tag || 'h3';
     const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
-    return `<${tag} className="text-xl font-bold mt-6 mb-2 text-[#0A4E35]">${content}</${tag}>`;
+    return `<${tag} style="font-size:1.2rem;font-weight:700;margin:1.5rem 0 0.5rem;color:#0A4E35;">${content}</${tag}>`;
   }
 
   if (type === 'list') {
     const tag = node.tag || 'ul';
     const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
-    return `<${tag} className="list-disc pl-6 mb-4">${content}</${tag}>`;
+    return `<${tag} style="list-style:disc;padding-left:1.5rem;margin-bottom:1rem;">${content}</${tag}>`;
   }
 
   if (type === 'listitem') {
     const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
-    return `<li>${content}</li>`;
+    return `<li style="margin-bottom:0.25rem;">${content}</li>`;
   }
 
   if (type === 'text') {
     let text = node.text || '';
+    // Escape HTML entities and convert newlines to paragraph breaks
+    text = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      // Double newlines become paragraph separators — render as two line breaks
+      .replace(/\n\n/g, '</p><p style="margin-bottom:1rem;line-height:1.8;">')
+      .replace(/\n/g, '<br/>');
     if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
     if (node.format & 2) text = `<em>${text}</em>`; // Italic
     return text;
@@ -123,13 +130,13 @@ export function lexicalToHtml(node: any): string {
   if (type === 'upload') {
     const media = node.value;
     if (media) {
+      // Prefer the local API path so it works via Payload's static handler
       const url = media.url || '';
       const alt = media.alt || 'image';
-      const fullUrl = url.startsWith('/') ? `${PAYLOAD_CMS_URL}${url}` : url;
       return `
-        <div className="my-6 rounded-2xl overflow-hidden shadow-lg border border-gray-150">
-          <img src="${fullUrl}" alt="${alt}" className="w-full h-auto object-cover max-h-[500px]" />
-          ${media.caption ? `<p className="text-xs text-gray-500 mt-2 text-center italic">${media.caption}</p>` : ''}
+        <div style="margin:1.5rem 0;border-radius:1rem;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+          <img src="${url}" alt="${alt}" style="width:100%;height:auto;object-fit:cover;max-height:500px;" />
+          ${media.caption ? `<p style="font-size:0.75rem;color:#6b7280;margin-top:0.5rem;text-align:center;font-style:italic;">${media.caption}</p>` : ''}
         </div>
       `;
     }

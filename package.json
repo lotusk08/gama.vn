@@ -11,7 +11,8 @@
     "seed": "tsx src/lib/seed.ts",
     "sync-media": "tsx src/lib/syncMedia.ts",
     "upload-media": "tsx src/lib/uploadMediaToBlob.ts",
-    "migrate-media-urls": "tsx src/lib/migrateMediaUrls.ts"
+    "migrate-media-urls": "tsx src/lib/migrateMediaUrls.ts",
+    "revert-media-urls": "tsx src/lib/revertMediaUrlsToApi.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
