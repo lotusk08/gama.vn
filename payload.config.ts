@@ -32,6 +32,11 @@ const storagePlugins = useVercelBlob
           media: true,
         },
         token: process.env.BLOB_READ_WRITE_TOKEN || '',
+        // clientUploads: true routes file data directly from the browser
+        // to Vercel Blob, bypassing the server-side buffer entirely.
+        // This is REQUIRED to avoid the SharedArrayBuffer error that occurs
+        // when Node.js Buffer objects are passed through undici's fetch.
+        clientUploads: true,
       }),
     ]
   : [];
@@ -62,11 +67,10 @@ export default buildConfig({
 
   sharp,
 
-  // Payload v3 cors: use an array of origins or '*' for all
-  cors: [
-    'http://localhost:3000',
-    process.env.NEXT_PUBLIC_SERVER_URL || '',
-  ].filter(Boolean),
+  // Allow all origins — the admin and public site run on the same domain.
+  // Restricting to specific origins can cause 403s when NEXT_PUBLIC_SERVER_URL
+  // is not yet set in Vercel env vars.
+  cors: '*',
 
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
