@@ -46,8 +46,20 @@ async function run() {
     });
 
     if (existing.totalDocs > 0) {
-      console.log(`Media document for "${file}" already exists in database. Skipping.`);
-      continue;
+      const doc = existing.docs[0];
+      const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN;
+      const isLocalUrl = doc.url && doc.url.startsWith('/');
+
+      if (hasBlobToken && isLocalUrl) {
+        console.log(`Media document for "${file}" has a local URL but BLOB_READ_WRITE_TOKEN is set. Deleting local record to re-upload to Vercel Blob...`);
+        await payload.delete({
+          collection: 'media',
+          id: doc.id,
+        });
+      } else {
+        console.log(`Media document for "${file}" already exists in database. Skipping.`);
+        continue;
+      }
     }
 
     // Determine mimeType
