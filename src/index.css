@@ -1,8 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Rufina:wght@400;700&family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Poppins", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Rufina", serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), serif;
+  --font-mono: var(--font-mono), monospace;
+
+  /* GAMA Corporate Palette Theme Variables */
+  --color-gama-green-dark: #0a4e35;
+  --color-gama-green-medium: #086e3f;
+  --color-gama-green-light: #eef5ed;
+  --color-gama-gold: #b48f57;
+  --color-gama-gold-dark: #a27b46;
+}
+
+@utility effect-font-gama {
+  background: linear-gradient(135deg, var(--color-gama-green-dark) 0%, var(--color-gama-green-medium) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+h1,
+h2,
+h3 {
+  @apply effect-font-gama;
+}
+
+@utility effect-font-styling {
+  letter-spacing: -0.02em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

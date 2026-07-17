@@ -1,36 +1,35 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Calendar, 
-  BookOpen, 
-  Clock, 
-  Tag, 
-  X, 
-  ArrowUpRight, 
-  ChevronRight, 
-  User, 
-  Search, 
-  Settings, 
-  Check, 
-  AlertCircle, 
-  Plus, 
-  Info, 
-  Copy, 
-  ArrowLeft, 
-  RefreshCw, 
+import {
+  Calendar,
+  BookOpen,
+  Clock,
+  Tag,
+  X,
+  ArrowUpRight,
+  ChevronRight,
+  User,
+  Search,
+  Settings,
+  Check,
+  AlertCircle,
+  Plus,
+  Info,
+  Copy,
+  ArrowLeft,
+  RefreshCw,
   Share2,
   FileText
 } from 'lucide-react';
 import { BlogPost } from '../types';
-import { 
-  fetchBlogPosts, 
-  createBlogPost, 
-  checkPayloadConnection, 
-  resetLocalPosts, 
-  PAYLOAD_CMS_URL, 
-  PayloadStatus 
+import {
+  fetchBlogPosts,
+  createBlogPost,
+  resetLocalPosts,
+  PAYLOAD_CMS_URL
 } from '../lib/payload';
+import { useLivePreview } from '@payloadcms/live-preview-react';
 
 export default function Blog() {
   // State variables
@@ -40,14 +39,7 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [cmsStatus, setCmsStatus] = useState<PayloadStatus>({
-    isConnected: false,
-    url: PAYLOAD_CMS_URL,
-    source: 'Local Demo Mode'
-  });
-  
   // Modals state
-  const [showIntegrationModal, setShowIntegrationModal] = useState<boolean>(false);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [copiedSchema, setCopiedSchema] = useState<boolean>(false);
 
@@ -70,11 +62,8 @@ export default function Blog() {
   const loadPostsData = async () => {
     setLoading(true);
     try {
-      const { posts: fetchedPosts, source, error } = await fetchBlogPosts();
+      const { posts: fetchedPosts } = await fetchBlogPosts();
       setPosts(fetchedPosts);
-      
-      const connection = await checkPayloadConnection();
-      setCmsStatus(connection);
     } catch (err) {
       console.error('Error fetching blog posts:', err);
     } finally {
@@ -85,6 +74,29 @@ export default function Blog() {
   useEffect(() => {
     loadPostsData();
   }, []);
+
+  // Parse the ?post parameter from url on mount/posts load (crucial for Payload CMS Live Preview of blog posts)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && posts.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const postParam = params.get('post');
+      if (postParam) {
+        const found = posts.find(p => p.id === postParam);
+        if (found) {
+          setSelectedPost(found);
+        }
+      }
+    }
+  }, [posts]);
+
+  // Hook up selected blog post to realtime Payload Live Preview updates
+  const { data: livePost } = useLivePreview({
+    initialData: (selectedPost || { id: 'blog-post-preview' }) as any,
+    serverURL: PAYLOAD_CMS_URL,
+    depth: 2,
+  });
+
+  const displayPost = livePost || selectedPost;
 
   // Tracking article scroll progress using the main window scroll instead of a restricted nested container
   useEffect(() => {
@@ -103,7 +115,7 @@ export default function Blog() {
         setScrollProgress(100);
         return;
       }
-      
+
       const progress = (scrollTop / docHeight) * 100;
       setScrollProgress(Math.min(100, Math.max(0, progress)));
     };
@@ -111,7 +123,7 @@ export default function Blog() {
     window.addEventListener('scroll', handleScroll);
     // Call once to initialize progress
     const timer = setTimeout(handleScroll, 100);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearTimeout(timer);
@@ -120,7 +132,7 @@ export default function Blog() {
 
   const handleShare = (post: BlogPost, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    
+
     // Simulate share URL
     const shareUrl = `${window.location.origin}/#blog?id=${post.id}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
@@ -162,7 +174,7 @@ export default function Blog() {
       // Update state
       setPosts(prev => [created, ...prev]);
       setFormSuccess(true);
-      
+
       // Reset form fields
       setNewTitle('');
       setNewExcerpt('');
@@ -219,29 +231,29 @@ export default function Blog() {
   const filteredPosts = posts.filter(post => {
     const matchesCategory = activeCategory === 'all' || post.category === activeCategory;
     const searchLower = searchQuery.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       post.title.toLowerCase().includes(searchLower) ||
       post.excerpt.toLowerCase().includes(searchLower) ||
       post.content.toLowerCase().includes(searchLower) ||
       post.author.name.toLowerCase().includes(searchLower) ||
       post.category.toLowerCase().includes(searchLower);
-    
+
     return matchesCategory && matchesSearch;
   });
 
   // Featured post is the first post matching filters (if any) or simply the first overall
   const featuredPost = searchQuery === '' && activeCategory === 'all' && posts.length > 0
-    ? posts[0] 
+    ? posts[0]
     : null;
-  
-  const gridPosts = featuredPost 
+
+  const gridPosts = featuredPost
     ? filteredPosts.filter(p => p.id !== featuredPost.id)
     : filteredPosts;
 
   return (
-    <section className="py-32 bg-white overflow-hidden min-h-screen">
+    <section className="pt-36 pb-32 bg-white overflow-hidden min-h-screen">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
-        
+
         {/* Dynamic header navigation or view mode */}
         <AnimatePresence mode="wait">
           {!selectedPost ? (
@@ -259,31 +271,8 @@ export default function Blog() {
                     <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] font-sans">
                       • BẢN TIN & TẠP CHÍ GAMA
                     </span>
-                    
-                    {/* CMS Connection Indicator Badge */}
-                    <button
-                      onClick={() => setShowIntegrationModal(true)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-tight font-mono transition-all border shadow-sm cursor-pointer ${
-                        cmsStatus.isConnected 
-                          ? 'bg-[#EEF5ED] text-[#0A4E35] border-[#0A4E35]/20 hover:border-[#0A4E35]/40' 
-                          : PAYLOAD_CMS_URL 
-                            ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100/50' 
-                            : 'bg-[#B48F57]/15 text-[#B48F57] border-[#B48F57]/20 hover:bg-[#B48F57]/25'
-                      }`}
-                      title="Click to view Payload CMS integration details"
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${cmsStatus.isConnected ? 'bg-emerald-500 animate-pulse' : PAYLOAD_CMS_URL ? 'bg-rose-500' : 'bg-amber-500'}`} />
-                      <span>
-                        {cmsStatus.isConnected 
-                          ? 'Cổng Payload CMS Live' 
-                          : PAYLOAD_CMS_URL 
-                            ? 'Lỗi kết nối Payload CMS' 
-                            : 'Mẫu lưu trữ cục bộ'}
-                      </span>
-                      <Settings className="w-3 h-3 ml-0.5 opacity-70" />
-                    </button>
                   </div>
-                  
+
                   <h2 className="text-3xl sm:text-[40px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1]">
                     Khoa học màu sắc & Nhật ký nghiên cứu
                   </h2>
@@ -305,18 +294,17 @@ export default function Blog() {
 
               {/* Real-time search, filter and settings banner */}
               <div className="bg-slate-50/50 rounded-[24px] border border-gray-150/80 p-5 mb-12 flex flex-col md:flex-row items-center justify-between gap-4">
-                
+
                 {/* Categories filtering tabs */}
                 <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
                   {(['all', 'Science', 'Color', 'Industry', 'Business'] as const).map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
-                      className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${
-                        activeCategory === cat
+                      className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border ${activeCategory === cat
                           ? 'bg-[#0A4E35] text-white border-transparent shadow-sm'
                           : 'bg-white text-[#0A4E35] border-gray-150 hover:bg-gray-50 hover:border-gray-350'
-                      }`}
+                        }`}
                     >
                       {cat === 'all' ? 'All Publications' : cat}
                     </button>
@@ -334,7 +322,7 @@ export default function Blog() {
                     className="w-full pl-10 pr-4 py-2 bg-white rounded-full border border-gray-150 text-xs text-[#0A4E35] outline-none focus:border-[#0A4E35] focus:ring-1 focus:ring-[#0A4E35] transition-all"
                   />
                   {searchQuery && (
-                    <button 
+                    <button
                       onClick={() => setSearchQuery('')}
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
                     >
@@ -372,7 +360,7 @@ export default function Blog() {
                 <>
                   {/* FEATURED POST (Hero Showcase) */}
                   {featuredPost && (
-                    <div 
+                    <div
                       onClick={() => setSelectedPost(featuredPost)}
                       className="bg-slate-50 rounded-[32px] border border-gray-150/70 p-6 sm:p-10 mb-12 flex flex-col lg:flex-row gap-8 lg:items-center hover:border-[#B48F57] transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md"
                     >
@@ -387,11 +375,11 @@ export default function Blog() {
                               {featuredPost.date}
                             </span>
                           </div>
-                          
+
                           <h3 className="font-serif font-extrabold text-2xl sm:text-3xl text-[#0A4E35] group-hover:text-[#B48F57] transition-colors leading-tight mb-4 tracking-tight">
                             {featuredPost.title}
                           </h3>
-                          
+
                           <p className="text-xs sm:text-sm text-gray-500 font-sans leading-relaxed mb-6 max-w-3xl">
                             {featuredPost.excerpt}
                           </p>
@@ -448,11 +436,11 @@ export default function Blog() {
                               {post.date}
                             </span>
                           </div>
-                          
+
                           <h3 className="font-serif font-extrabold text-lg sm:text-xl text-[#0A4E35] group-hover:text-[#B48F57] transition-colors leading-snug mb-3 line-clamp-2">
                             {post.title}
                           </h3>
-                          
+
                           <p className="text-xs sm:text-sm text-gray-500 font-sans leading-relaxed mb-6 line-clamp-3">
                             {post.excerpt}
                           </p>
@@ -490,7 +478,7 @@ export default function Blog() {
               )}
             </motion.div>
           ) : (
-            
+
             /* FULL IMMERSIVE READING SUB-PAGE */
             <motion.div
               key="reading-view"
@@ -514,13 +502,13 @@ export default function Blog() {
                   <span className="text-[10px] text-gray-400 font-mono uppercase font-bold hidden sm:inline">
                     Tiến độ đọc: {Math.round(scrollProgress)}%
                   </span>
-                  
+
                   {/* Reading Share Button */}
                   <button
-                    onClick={() => handleShare(selectedPost)}
+                    onClick={() => handleShare(displayPost)}
                     className="px-4 py-2 bg-[#EEF5ED] hover:bg-[#0A4E35] hover:text-white text-[#0A4E35] rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                   >
-                    <span>{copiedId === selectedPost.id ? 'Đã sao chép!' : 'Sao chép liên kết'}</span>
+                    <span>{copiedId === displayPost.id ? 'Đã sao chép!' : 'Sao chép liên kết'}</span>
                     <Share2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -530,53 +518,53 @@ export default function Blog() {
               </div>
 
               {/* Article content sheet */}
-              <div 
+              <div
                 ref={readingAreaRef}
                 className="flex flex-col gap-8"
               >
                 {/* Meta details */}
                 <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 font-sans font-bold">
                   <span className="text-[10px] bg-[#EEF5ED] text-[#0A4E35] px-3.5 py-1.5 rounded-full uppercase tracking-widest font-extrabold">
-                    {selectedPost.category === 'Science' ? 'Khoa học' : selectedPost.category === 'Color' ? 'Màu sắc' : selectedPost.category === 'Industry' ? 'Công nghiệp' : 'Doanh nghiệp'}
+                    {displayPost.category === 'Science' ? 'Khoa học' : displayPost.category === 'Color' ? 'Màu sắc' : displayPost.category === 'Industry' ? 'Công nghiệp' : 'Doanh nghiệp'}
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-[#B48F57]" />
-                    {selectedPost.date}
+                    {displayPost.date}
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-[#B48F57]" />
-                    {selectedPost.readTime}
+                    {displayPost.readTime}
                   </span>
                 </div>
 
                 {/* Main Article Title */}
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1] pr-4">
-                  {selectedPost.title}
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-extrabold tracking-tight leading-[1.1] pr-4 effect-font-styling effect-font-gama">
+                  {displayPost.title}
                 </h1>
 
                 {/* Author Bio Card Block */}
                 <div className="flex items-center gap-4 py-5 border-y border-gray-150/80 my-2">
                   <div className="w-12 h-12 rounded-full bg-[#B48F57]/15 flex items-center justify-center text-[#B48F57] text-lg font-bold uppercase font-sans">
-                    {selectedPost.author.name.charAt(0)}
+                    {displayPost.author.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="font-serif font-bold text-base text-[#0A4E35]">{selectedPost.author.name}</p>
-                    <p className="text-xs text-gray-500 font-sans font-medium">{selectedPost.author.role} • Phòng nghiên cứu hóa chất GAMA</p>
+                    <p className="font-serif font-bold text-base text-[#0A4E35]">{displayPost.author.name}</p>
+                    <p className="text-xs text-gray-500 font-sans font-medium">{displayPost.author.role} • Phòng nghiên cứu hóa chất GAMA</p>
                   </div>
                 </div>
 
                 {/* Immersive reading markdown/text space with stylized elements */}
                 <div className="font-sans text-sm sm:text-base text-[#0A4E35]/90 leading-relaxed whitespace-pre-line pr-4 flex flex-col gap-6 font-light">
-                  
+
                   {/* Decorative introduction callout block */}
                   <p className="font-serif italic text-base sm:text-lg text-[#0A4E35] border-l-4 border-[#B48F57] pl-5 py-2 my-2 bg-slate-50 rounded-r-xl pr-3 leading-relaxed">
-                    "{selectedPost.excerpt}"
+                    "{displayPost.excerpt}"
                   </p>
 
                   {/* Main Paragraph body content formatted */}
-                  {selectedPost.content}
+                  <div dangerouslySetInnerHTML={{ __html: displayPost.content }} />
                 </div>
 
                 {/* Chemical stamp footer */}
@@ -598,10 +586,10 @@ export default function Blog() {
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {posts
-                    .filter(p => p.id !== selectedPost.id)
+                    .filter(p => p.id !== displayPost.id)
                     .slice(0, 2)
                     .map(post => (
-                      <div 
+                      <div
                         key={post.id}
                         onClick={() => {
                           setSelectedPost(post);
@@ -629,144 +617,7 @@ export default function Blog() {
           )}
         </AnimatePresence>
 
-        {/* 1. PAYLOAD CMS CONNECTION STATUS & HELP MODAL */}
-        <AnimatePresence>
-          {showIntegrationModal && (
-            <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-[24px] w-full max-w-3xl overflow-hidden shadow-2xl border border-gray-100 flex flex-col max-h-[90vh]"
-              >
-                <div className="bg-[#0A4E35] text-white p-6 relative">
-                  <button
-                    onClick={() => setShowIntegrationModal(false)}
-                    className="absolute top-6 right-6 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                  <div className="flex gap-2 items-center text-xs font-bold text-[#B48F57] uppercase tracking-widest mb-1.5 font-mono">
-                    <Settings className="w-4 h-4" />
-                    <span>Payload CMS Integration Ledger</span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white">
-                    API Configuration Guidelines
-                  </h3>
-                </div>
 
-                <div className="p-6 overflow-y-auto max-h-[60vh] flex flex-col gap-6 text-xs sm:text-sm text-gray-600 font-sans leading-relaxed">
-                  
-                  {/* Status Block */}
-                  <div className="bg-slate-50 border border-gray-150 rounded-2xl p-5">
-                    <h4 className="font-bold text-[#0A4E35] uppercase tracking-wide text-xs mb-3 font-mono">CONNECTION TELEMETRY:</h4>
-                    <div className="flex flex-col gap-2.5 text-xs">
-                      <div className="flex justify-between items-center pb-2 border-b border-gray-200/50">
-                        <span className="text-gray-400 font-bold">API STATUS:</span>
-                        <span className={`font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider ${cmsStatus.isConnected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-                          {cmsStatus.isConnected ? '● ACTIVE PIPELINE' : '● FALLBACK DEMO MODE'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center pb-2 border-b border-gray-200/50">
-                        <span className="text-gray-400 font-bold">CONFIGURED API URL:</span>
-                        <span className="font-mono text-[#0A4E35] bg-[#EEF5ED] px-2 py-1 rounded select-all break-all max-w-xs md:max-w-md text-right">
-                          {PAYLOAD_CMS_URL || '(VITE_PAYLOAD_CMS_URL Not Defined)'}
-                        </span>
-                      </div>
-
-                      {cmsStatus.error && (
-                        <div className="flex flex-col gap-1 p-2.5 bg-rose-50 border border-rose-200/70 rounded-lg text-rose-700 font-mono text-[11px] mt-1">
-                          <span className="font-bold">LAST CONNECTION ERROR:</span>
-                          <span className="break-all">{cmsStatus.error}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Step-by-Step Instructions */}
-                  <div className="flex flex-col gap-3">
-                    <h4 className="font-bold text-[#0A4E35] text-xs uppercase tracking-widest font-sans">1. How to Link Your Payload CMS</h4>
-                    <p className="text-xs">
-                      This application uses client-side environment configurations. To hook up your live Payload CMS instance:
-                    </p>
-                    <ol className="list-decimal pl-5 flex flex-col gap-2 text-xs">
-                      <li>Open the <strong>Settings (API Keys)</strong> menu in the AI Studio sidebar dashboard.</li>
-                      <li>Define a secret/environment variable named: <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">VITE_PAYLOAD_CMS_URL</code>.</li>
-                      <li>Set the value to your hosted CMS root URL (e.g., <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">https://payload.gamacorp.com</code>).</li>
-                      <li>Recompile the application to update client bundle settings. The connection badge will instantly glow green!</li>
-                    </ol>
-                  </div>
-
-                  {/* Copyable Schema Config Block */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-[#0A4E35] text-xs uppercase tracking-widest font-sans">2. Ideal Collection Schema Config</h4>
-                      <button
-                        onClick={copyPayloadSchema}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-[#EEF5ED] text-[#0A4E35] rounded-lg text-[11px] font-bold tracking-tight border border-gray-200 transition-colors"
-                      >
-                        {copiedSchema ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedSchema ? 'Copied' : 'Copy Config'}</span>
-                      </button>
-                    </div>
-                    <p className="text-xs">
-                      For perfect data mapping, configure your Payload CMS collection <code className="font-mono bg-[#EEF5ED] text-[#0A4E35] px-1 rounded">posts</code> with this exact schema layout:
-                    </p>
-                    <pre className="p-4 bg-slate-900 text-[#EEF5ED] rounded-xl font-mono text-[10px] sm:text-[11px] overflow-x-auto border border-slate-950 max-h-48 leading-relaxed">
-{`import { CollectionConfig } from 'payload/types';
-
-const Posts: CollectionConfig = {
-  slug: 'posts',
-  admin: {
-    useAsTitle: 'title',
-  },
-  fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'excerpt', type: 'textarea', required: true },
-    { name: 'content', type: 'richText', required: true },
-    {
-      name: 'category',
-      type: 'select',
-      options: ['Science', 'Color', 'Industry', 'Business'],
-      required: true,
-    },
-    { name: 'date', type: 'text' },
-    { name: 'readTime', type: 'text' },
-    {
-      name: 'author',
-      type: 'group',
-      fields: [
-        { name: 'name', type: 'text', required: true },
-        { name: 'role', type: 'text', required: true },
-      ],
-    },
-  ],
-};
-
-export default Posts;`}
-                    </pre>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-slate-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
-                  <button
-                    onClick={handleResetDemo}
-                    className="px-4 py-2 text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-full text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer border border-rose-200/50"
-                  >
-                    Reset Local Cache
-                  </button>
-                  <button
-                    onClick={() => setShowIntegrationModal(false)}
-                    className="px-6 py-2.5 bg-[#0A4E35] text-white hover:bg-[#B48F57] rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
-                  >
-                    Close Ledger Panel
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
 
         {/* 2. ADMIN PORTAL: CREATE ARTICLE FORM MODAL */}
         <AnimatePresence>
@@ -795,7 +646,7 @@ export default Posts;`}
                 </div>
 
                 <form onSubmit={handleCreatePost} className="p-6 overflow-y-auto max-h-[70vh] flex flex-col gap-4 font-sans text-xs sm:text-sm">
-                  
+
                   {formSuccess && (
                     <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 flex items-center gap-2 font-medium mb-2">
                       <Check className="w-5 h-5 shrink-0 text-emerald-600" />
@@ -901,7 +752,7 @@ export default Posts;`}
 
                   <div className="p-3 bg-[#EEF5ED]/45 border border-[#0A4E35]/5 rounded-xl text-[11px] text-gray-500 leading-relaxed mt-2">
                     <span className="font-bold text-[#0A4E35] block mb-0.5 font-serif">Integration Pipeline Indicator:</span>
-                    {PAYLOAD_CMS_URL 
+                    {PAYLOAD_CMS_URL
                       ? 'Note: Your Payload CMS url is configured. This form will attempt to directly transmit this post payload to your live Payload posts collections!'
                       : 'Demo Active: Your post will be securely saved inside your local browser storage cache to keep it persistently visible across app preview sessions.'}
                   </div>

@@ -4,35 +4,60 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ArrowRight, Quote } from 'lucide-react';
 import { Testimonial } from '../types';
 
-export default function Testimonials() {
+interface TestimonialsProps {
+  data?: {
+    title?: string;
+    subtitle?: string;
+    items?: Array<{
+      quote: string;
+      author: string;
+      role?: string;
+      company?: string;
+    }>;
+  } | null;
+}
+
+const DEFAULT_TESTIMONIALS: Testimonial[] = [
+  {
+    quote: "“Người ta thường nghĩ sơn chỉ là lớp ngoài cùng, nhưng với tôi, đó là chiếc áo dệt bằng xúc cảm của ngôi nhà. GAMA không chỉ tạo ra màu sắc, họ hiểu cách lưu giữ thời gian trên từng thớ tường phẳng mịn như lụa.”",
+    author: "KTS. Lê Hoài Nam",
+    role: "Nhà sáng lập & Giám đốc Sáng tạo",
+    company: "Atelier Nam Concept"
+  },
+  {
+    quote: "“Hơn ba mươi năm cầm cọ thi công, tôi chưa từng chạm tay vào màng sơn nào có độ che phủ tự nhiên và mịn màng như men sứ của GAMA. Khi thi công dòng G14, màng sơn tự san phẳng phẳng lì, không để lại một vệt cọ nhỏ.”",
+    author: "Nghệ nhân Nguyễn Văn Quân",
+    role: "Trưởng nhóm thi công di sản kiến trúc",
+    company: "Hội Mỹ thuật Xây dựng Việt Nam"
+  },
+  {
+    quote: "“Giữa sương muối buốt giá của Đà Lạt, ngôi biệt thự gỗ đá của chúng tôi vẫn giữ nguyên vẹn sắc độ trầm ấm ban đầu nhờ lớp bảo vệ siêu bóng Nano từ GAMA. Một sự tĩnh lặng sang trọng, bền bỉ và vô cùng an tâm.”",
+    author: "Bà Nguyễn Hương Giang",
+    role: "Chủ sở hữu",
+    company: "The Pine Hill Mansion (Đà Lạt)"
+  },
+  {
+    quote: "“Khi kiến tạo các công trình xanh đạt tiêu chuẩn sinh thái cao, chúng tôi đặt tiêu chí sức khỏe lên hàng đầu. Sơn nội thất sinh học của GAMA hoàn toàn không mùi, hàm lượng VOC gần như bằng không, mang lại bầu không khí trong lành nguyên bản ngay sau khi bàn giao.”",
+    author: "Kỹ sư Trần Hoàng Bách",
+    role: "Giám đốc Phát triển Bền vững",
+    company: "Tập đoàn Địa ốc ECO-Green Việt Nam"
+  }
+];
+
+export default function Testimonials({ data }: TestimonialsProps = {}) {
   const [current, setCurrent] = useState<number>(0);
 
-  const testimonials: Testimonial[] = [
-    {
-      quote: "“Người ta thường nghĩ sơn chỉ là lớp ngoài cùng, nhưng với tôi, đó là chiếc áo dệt bằng xúc cảm của ngôi nhà. GAMA không chỉ tạo ra màu sắc, họ hiểu cách lưu giữ thời gian trên từng thớ tường phẳng mịn như lụa.”",
-      author: "KTS. Lê Hoài Nam",
-      role: "Nhà sáng lập & Giám đốc Sáng tạo",
-      company: "Atelier Nam Concept"
-    },
-    {
-      quote: "“Hơn ba mươi năm cầm cọ thi công, tôi chưa từng chạm tay vào màng sơn nào có độ che phủ tự nhiên và mịn màng như men sứ của GAMA. Khi thi công dòng G14, màng sơn tự san phẳng phẳng lì, không để lại một vệt cọ nhỏ.”",
-      author: "Nghệ nhân Nguyễn Văn Quân",
-      role: "Trưởng nhóm thi công di sản kiến trúc",
-      company: "Hội Mỹ thuật Xây dựng Việt Nam"
-    },
-    {
-      quote: "“Giữa sương muối buốt giá của Đà Lạt, ngôi biệt thự gỗ đá của chúng tôi vẫn giữ nguyên vẹn sắc độ trầm ấm ban đầu nhờ lớp bảo vệ siêu bóng Nano từ GAMA. Một sự tĩnh lặng sang trọng, bền bỉ và vô cùng an tâm.”",
-      author: "Bà Nguyễn Hương Giang",
-      role: "Chủ sở hữu",
-      company: "The Pine Hill Mansion (Đà Lạt)"
-    },
-    {
-      quote: "“Khi kiến tạo các công trình xanh đạt tiêu chuẩn sinh thái cao, chúng tôi đặt tiêu chí sức khỏe lên hàng đầu. Sơn nội thất sinh học của GAMA hoàn toàn không mùi, hàm lượng VOC gần như bằng không, mang lại bầu không khí trong lành nguyên bản ngay sau khi bàn giao.”",
-      author: "Kỹ sư Trần Hoàng Bách",
-      role: "Giám đốc Phát triển Bền vững",
-      company: "Tập đoàn Địa ốc ECO-Green Việt Nam"
-    }
-  ];
+  const testimonials: Testimonial[] = data?.items && data.items.length > 0
+    ? data.items.map(item => ({
+        quote: item.quote,
+        author: item.author,
+        role: item.role ?? '',
+        company: item.company ?? ''
+      }))
+    : DEFAULT_TESTIMONIALS;
+
+  const title = data?.title ?? 'Sự thấu cảm sâu sắc từ những người kiến thiết tổ ấm.';
+  const subtitle = data?.subtitle ?? '• CẢM NHẬN CHIÊM NGHIỆM';
 
   const handleNext = () => {
     setCurrent((prev) => (prev + 1) % testimonials.length);
@@ -48,10 +73,10 @@ export default function Testimonials() {
         {/* Left text column */}
         <div className="lg:col-span-5 flex flex-col text-left">
           <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] block mb-4 font-sans">
-            • CẢM NHẬN CHIÊM NGHIỆM
+            {subtitle}
           </span>
           <h2 className="text-3xl sm:text-[44px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1] mb-6">
-            Sự thấu cảm sâu sắc từ những người kiến thiết tổ ấm.
+            {title}
           </h2>
           <p className="text-[#0A4E35]/70 font-sans text-sm md:text-base leading-relaxed mb-10 max-w-sm font-light">
             Lắng nghe những chia sẻ chân thực từ các kiến trúc sư duy mỹ, nghệ nhân thi công lành nghề và những gia chủ chọn GAMA làm tri kỷ đồng hành bảo vệ không gian sống.

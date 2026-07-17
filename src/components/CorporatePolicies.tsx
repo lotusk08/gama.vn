@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Users, 
-  ShieldCheck, 
-  Landmark, 
-  FileText, 
-  ShieldAlert, 
-  Award, 
-  ArrowRight, 
+import {
+  Users,
+  ShieldCheck,
+  Landmark,
+  FileText,
+  ShieldAlert,
+  Award,
+  ArrowRight,
   ChevronRight,
   Building,
   CheckCircle2,
@@ -17,6 +17,8 @@ import {
   AlertTriangle,
   Heart
 } from 'lucide-react';
+
+import { PAYLOAD_CMS_URL } from '../lib/payload';
 
 export type PolicyKey = 'suppliers' | 'privacy' | 'position' | 'conduct' | 'speakup' | 'accessibility';
 
@@ -34,7 +36,7 @@ function renderLexicalNode(node: any, policyKey: string, headingIndexRef: { curr
 
   if (node.type === 'heading' && node.tag === 'h3') {
     const headingIndex = headingIndexRef.current++;
-    
+
     // Icon mapping based on policyKey and heading index
     let IconComp = CheckCircle2; // default
     if (policyKey === 'suppliers') {
@@ -141,7 +143,8 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
   useEffect(() => {
     async function fetchPolicies() {
       try {
-        const res = await fetch('/api/policies?limit=100');
+        const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
+        const res = await fetch(`${baseUrl}/api/policies?limit=100&t=${Date.now()}`);
         const data = await res.json();
         if (data && data.docs) {
           setPolicies(data.docs);
@@ -166,7 +169,7 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
 
   if (loading) {
     return (
-      <div className="bg-slate-50 min-h-screen pt-32 pb-24 flex items-center justify-center">
+      <div className="bg-slate-50 min-h-screen pt-36 pb-24 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-[#0A4E35]/20 border-t-[#0A4E35] animate-spin" />
           <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
@@ -204,14 +207,14 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pt-32 pb-24">
+    <div className="bg-slate-50 min-h-screen pt-36 pb-24">
       {/* Header section with rich typography */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 mb-16">
         <div className="border-b border-slate-200 pb-8">
           <span className="text-[10px] font-mono font-bold text-[#B48F57] uppercase tracking-widest block mb-2">
             • GAMA GROUP CO., LTD CORPORATE DISCLOSURE & GOVERNANCE
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-extrabold text-[#0A4E35] tracking-tight leading-none">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-extrabold tracking-tight leading-none effect-font-styling effect-font-gama">
             Chính sách quản trị & Tuân thủ
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 font-sans mt-3 max-w-2xl font-light">
@@ -222,7 +225,7 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
 
       {/* Main content grid with sticky sidebar menu and readable reading pane */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        
+
         {/* Sticky Sidebar Navigation */}
         <aside className="lg:col-span-4 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm lg:sticky lg:top-28">
           <h2 className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-6">
@@ -236,30 +239,26 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
                 <button
                   key={item.id}
                   onClick={() => onChangePolicy(item.id)}
-                  className={`w-full text-left p-4 rounded-2xl flex items-start gap-4 transition-all duration-300 group cursor-pointer ${
-                    isActive 
-                      ? 'bg-[#0A4E35] text-white shadow-md shadow-[#0a4e35]/10' 
+                  className={`w-full text-left p-4 rounded-2xl flex items-start gap-4 transition-all duration-300 group cursor-pointer ${isActive
+                      ? 'bg-[#0A4E35] text-white shadow-md shadow-[#0a4e35]/10'
                       : 'hover:bg-slate-100 text-slate-700'
-                  }`}
+                    }`}
                 >
-                  <div className={`p-2 rounded-xl flex-shrink-0 transition-colors ${
-                    isActive ? 'bg-[#125D41] text-[#B48F57]' : 'bg-slate-50 text-slate-400 group-hover:text-[#B48F57]'
-                  }`}>
+                  <div className={`p-2 rounded-xl flex-shrink-0 transition-colors ${isActive ? 'bg-[#125D41] text-[#B48F57]' : 'bg-slate-50 text-slate-400 group-hover:text-[#B48F57]'
+                    }`}>
                     <IconComp className="w-5 h-5" />
                   </div>
                   <div className="flex-grow min-w-0">
                     <span className="text-xs sm:text-sm font-sans font-bold block leading-tight">
                       {item.label}
                     </span>
-                    <span className={`text-[9px] font-mono tracking-wide block mt-1 uppercase ${
-                      isActive ? 'text-slate-300' : 'text-slate-400'
-                    }`}>
+                    <span className={`text-[9px] font-mono tracking-wide block mt-1 uppercase ${isActive ? 'text-slate-300' : 'text-slate-400'
+                      }`}>
                       {item.desc}
                     </span>
                   </div>
-                  <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1 transition-transform self-center ${
-                    isActive ? 'text-[#B48F57] translate-x-0.5' : 'text-slate-300 group-hover:translate-x-0.5'
-                  }`} />
+                  <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1 transition-transform self-center ${isActive ? 'text-[#B48F57] translate-x-0.5' : 'text-slate-300 group-hover:translate-x-0.5'
+                    }`} />
                 </button>
               );
             })}
@@ -273,8 +272,8 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
               <p className="text-[11px] text-slate-600 leading-relaxed font-light mb-4">
                 Nếu có bất kỳ thắc mắc hoặc báo cáo vi phạm liên quan đến hệ thống tuân thủ, vui lòng liên hệ trực tiếp với chúng tôi.
               </p>
-              <a 
-                href="mailto:compliance@gama.vn" 
+              <a
+                href="mailto:compliance@gama.vn"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0A4E35] hover:text-[#B48F57] transition-colors"
               >
                 <span>compliance@gama.vn</span>
@@ -335,10 +334,10 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
                   {/* SpeakUp Action Button (rendered manually to avoid strict database richText validation) */}
                   {activePolicy === 'speakup' && (
                     <div className="mt-6 flex flex-wrap gap-4">
-                      <a 
-                        href="https://secure.ethicspoint.com/domain/media/en/gui/23734/index.html" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href="https://secure.ethicspoint.com/domain/media/en/gui/23734/index.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors cursor-pointer inline-flex items-center gap-2"
                       >
                         <ShieldAlert className="w-4 h-4" />
@@ -364,8 +363,8 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
                 GAMA GROUP CORPORATE DISCLOSURE • UPDATE 2026
               </span>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="text-xs font-bold text-[#0A4E35] hover:text-[#B48F57] font-sans uppercase tracking-wider flex items-center gap-1 cursor-pointer"
             >

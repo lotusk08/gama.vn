@@ -200,6 +200,8 @@ export interface Post {
 export interface Media {
   id: string;
   alt: string;
+  title?: string | null;
+  caption?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -211,6 +213,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -288,51 +316,158 @@ export interface Policy {
 export interface Page {
   id: string;
   title: string;
+  /**
+   * Used to fetch this page. Use "home" for the main page.
+   */
   slug: string;
   layout: (
     | {
         title: string;
-        subtitle: string;
-        exploreServicesText: string;
-        exploreWorkText: string;
+        subtitle?: string | null;
+        description?: string | null;
+        ctaPrimaryLabel?: string | null;
+        ctaSecondaryLabel?: string | null;
+        badgeLabel?: string | null;
+        badgeSubLabel?: string | null;
+        badgeLabel2?: string | null;
+        badgeSubLabel2?: string | null;
+        backgroundImage?: (string | null) | Media;
         id?: string | null;
         blockName?: string | null;
         blockType: 'hero';
       }
     | {
         title: string;
-        subtitle: string;
-        description: string;
+        subtitle?: string | null;
+        description?: string | null;
+        richContent?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        image?: (string | null) | Media;
         id?: string | null;
         blockName?: string | null;
         blockType: 'about';
       }
     | {
-        title: string;
+        title?: string | null;
+        clients?:
+          | {
+              name: string;
+              category?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'stats';
       }
     | {
         title: string;
-        description: string;
+        description?: string | null;
+        steps?:
+          | {
+              stepNumber?: string | null;
+              title: string;
+              description?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'process';
       }
     | {
         title: string;
-        subtitle: string;
+        subtitle?: string | null;
+        items?:
+          | {
+              quote: string;
+              author: string;
+              role?: string | null;
+              company?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'testimonials';
       }
     | {
         title: string;
-        description: string;
+        description?: string | null;
+        backgroundImage?: (string | null) | Media;
+        shades?:
+          | {
+              name: string;
+              vietnameseName?: string | null;
+              hex: string;
+              description?: string | null;
+              complementary?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'color-year';
+      }
+    | {
+        sectionLabel?: string | null;
+        sectionTitle: string;
+        pillars?:
+          | {
+              num?: string | null;
+              category?: string | null;
+              title: string;
+              description?: string | null;
+              quote?: string | null;
+              iconName?: ('ShieldCheck' | 'Paintbrush' | 'Palette' | 'Globe') | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'core-values';
+      }
+    | {
+        headline: string;
+        subtext?: string | null;
+        buttonLabel?: string | null;
+        buttonTab?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'cta-banner';
+      }
+    | {
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'rich-text';
       }
   )[];
   updatedAt: string;
@@ -534,6 +669,8 @@ export interface PoliciesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  title?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -545,6 +682,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -561,8 +732,14 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               title?: T;
               subtitle?: T;
-              exploreServicesText?: T;
-              exploreWorkText?: T;
+              description?: T;
+              ctaPrimaryLabel?: T;
+              ctaSecondaryLabel?: T;
+              badgeLabel?: T;
+              badgeSubLabel?: T;
+              badgeLabel2?: T;
+              badgeSubLabel2?: T;
+              backgroundImage?: T;
               id?: T;
               blockName?: T;
             };
@@ -572,6 +749,8 @@ export interface PagesSelect<T extends boolean = true> {
               title?: T;
               subtitle?: T;
               description?: T;
+              richContent?: T;
+              image?: T;
               id?: T;
               blockName?: T;
             };
@@ -579,6 +758,13 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               title?: T;
+              clients?:
+                | T
+                | {
+                    name?: T;
+                    category?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -587,6 +773,14 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               title?: T;
               description?: T;
+              steps?:
+                | T
+                | {
+                    stepNumber?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -595,6 +789,15 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               title?: T;
               subtitle?: T;
+              items?:
+                | T
+                | {
+                    quote?: T;
+                    author?: T;
+                    role?: T;
+                    company?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
@@ -603,6 +806,53 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               title?: T;
               description?: T;
+              backgroundImage?: T;
+              shades?:
+                | T
+                | {
+                    name?: T;
+                    vietnameseName?: T;
+                    hex?: T;
+                    description?: T;
+                    complementary?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'core-values'?:
+          | T
+          | {
+              sectionLabel?: T;
+              sectionTitle?: T;
+              pillars?:
+                | T
+                | {
+                    num?: T;
+                    category?: T;
+                    title?: T;
+                    description?: T;
+                    quote?: T;
+                    iconName?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'cta-banner'?:
+          | T
+          | {
+              headline?: T;
+              subtext?: T;
+              buttonLabel?: T;
+              buttonTab?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'rich-text'?:
+          | T
+          | {
+              content?: T;
               id?: T;
               blockName?: T;
             };
@@ -656,12 +906,34 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Header {
   id: string;
+  siteTitle: string;
+  siteDescription: string;
   logo?: (string | null) | Media;
   navItems: {
     label: string;
     tabId: string;
+    hasSubMenu?: boolean | null;
+    subMenuItems?:
+      | {
+          label: string;
+          tabId: string;
+          id?: string | null;
+        }[]
+      | null;
     id?: string | null;
   }[];
+  topBarTicker?: {
+    stockSymbol?: string | null;
+    stockChange?: string | null;
+    certificationText?: string | null;
+  };
+  topBarLinks?:
+    | {
+        label: string;
+        tabId: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -682,6 +954,22 @@ export interface Footer {
     twitter?: string | null;
   };
   copyright: string;
+  newsletterTitle?: string | null;
+  newsletterText?: string | null;
+  footerLinks?:
+    | {
+        label: string;
+        tabId: string;
+        id?: string | null;
+      }[]
+    | null;
+  certifications?:
+    | {
+        label: string;
+        icon?: ('ShieldCheck' | 'Star' | 'Award' | 'CheckCircle') | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -690,8 +978,32 @@ export interface Footer {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
+  siteTitle?: T;
+  siteDescription?: T;
   logo?: T;
   navItems?:
+    | T
+    | {
+        label?: T;
+        tabId?: T;
+        hasSubMenu?: T;
+        subMenuItems?:
+          | T
+          | {
+              label?: T;
+              tabId?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  topBarTicker?:
+    | T
+    | {
+        stockSymbol?: T;
+        stockChange?: T;
+        certificationText?: T;
+      };
+  topBarLinks?:
     | T
     | {
         label?: T;
@@ -720,6 +1032,22 @@ export interface FooterSelect<T extends boolean = true> {
         twitter?: T;
       };
   copyright?: T;
+  newsletterTitle?: T;
+  newsletterText?: T;
+  footerLinks?:
+    | T
+    | {
+        label?: T;
+        tabId?: T;
+        id?: T;
+      };
+  certifications?:
+    | T
+    | {
+        label?: T;
+        icon?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

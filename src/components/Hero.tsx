@@ -6,12 +6,32 @@ import { ArrowRight, ChevronDown, CheckCircle, Paintbrush, ShieldCheck, Leaf } f
 interface HeroProps {
   onExploreServices: () => void;
   onExploreWork: () => void;
+  data?: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    ctaPrimaryLabel?: string;
+    ctaSecondaryLabel?: string;
+    badgeLabel?: string;
+    badgeSubLabel?: string;
+    badgeLabel2?: string;
+    badgeSubLabel2?: string;
+    backgroundImage?: any;
+  } | null;
 }
 
-export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
-  const [heroBanner, setHeroBanner] = React.useState('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80');
+export default function Hero({ onExploreServices, onExploreWork, data }: HeroProps) {
+  const defaultBanner = '/api/media/file/hero-banner.jpg';
+  const [heroBanner, setHeroBanner] = React.useState(defaultBanner);
 
   React.useEffect(() => {
+    if (data?.backgroundImage) {
+      if (typeof data.backgroundImage === 'object' && data.backgroundImage.url) {
+        setHeroBanner(data.backgroundImage.url);
+        return;
+      }
+    }
+
     async function fetchHeroImage() {
       try {
         const res = await fetch('/api/media?where[alt][equals]=hero-banner');
@@ -24,7 +44,17 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
       }
     }
     fetchHeroImage();
-  }, []);
+  }, [data?.backgroundImage]);
+
+  const title = data?.title ?? 'Sắc màu tĩnh lặng.\nChạm vào xúc cảm, giữ trọn bình yên.';
+  const subtitle = data?.subtitle ?? 'Thương hiệu GAMA • Từ năm 1994';
+  const description = data?.description ?? 'Khi màng sơn không chỉ là lớp phủ vô tri, nó trở thành ngôn ngữ của không gian, che chở những điều quý giá nhất. GAMA chế tác những dải sắc độ bền bỉ cùng thời gian, thấu hiểu sâu sắc từng nếp nhà nhiệt đới và đồng hành cùng khát vọng gìn giữ di sản tổ ấm qua các thế hệ.';
+  const ctaPrimary = data?.ctaPrimaryLabel ?? 'Khám phá lĩnh vực';
+  const ctaSecondary = data?.ctaSecondaryLabel ?? 'Liên hệ ngay';
+  const bLabel1 = data?.badgeLabel ?? 'Khơi Gợi';
+  const bSub1 = data?.badgeSubLabel ?? 'Sắc Độ Tâm Hồn';
+  const bLabel2 = data?.badgeLabel2 ?? 'Che Chở';
+  const bSub2 = data?.badgeSubLabel2 ?? 'Vững Chãi Nắng Mưa';
 
   return (
     <section className="relative min-h-screen pt-44 pb-32 flex items-center bg-[#EEF5ED]/50 overflow-hidden">
@@ -49,7 +79,7 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
           >
             <span className="w-10 h-[2px] bg-[#B48F57]" />
             <span className="text-[13px] font-sans font-extrabold text-[#B48F57] uppercase tracking-[0.25em]">
-              Thương hiệu GAMA • Từ năm 1994
+              {subtitle}
             </span>
           </motion.div>
 
@@ -58,10 +88,9 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-[62px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.12] mb-8 animate-fade-in"
+            className="text-4xl sm:text-5xl lg:text-[62px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.12] mb-8 whitespace-pre-line animate-fade-in"
           >
-            Sắc màu tĩnh lặng.<br />
-            Chạm vào xúc cảm, giữ trọn bình yên.
+            {title}
           </motion.h1>
 
           {/* Description */}
@@ -69,9 +98,9 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm sm:text-base md:text-lg text-[#0A4E35]/85 font-sans leading-relaxed mb-10 max-w-2xl font-light"
+            className="text-sm sm:text-base md:text-lg text-[#0A4E35]/85 font-sans leading-relaxed mb-10 max-w-2xl font-light whitespace-pre-line"
           >
-            Khi màng sơn không chỉ là lớp phủ vô tri, nó trở thành ngôn ngữ của không gian, che chở những điều quý giá nhất. GAMA chế tác những dải sắc độ bền bỉ cùng thời gian, thấu hiểu sâu sắc từng nếp nhà nhiệt đới và đồng hành cùng khát vọng gìn giữ di sản tổ ấm qua các thế hệ.
+            {description}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -85,14 +114,14 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
               onClick={onExploreServices}
               className="px-8 py-4 bg-[#0A4E35] hover:bg-[#05473E] text-white font-bold text-xs tracking-wider uppercase rounded-full transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 group"
             >
-              <span>Khám phá lĩnh vực</span>
+              <span>{ctaPrimary}</span>
               <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
             </button>
             <button
               onClick={onExploreWork}
               className="px-8 py-4 bg-white hover:bg-gray-50 text-[#0A4E35] border border-gray-200 font-bold text-xs tracking-wider uppercase rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
             >
-              Liên hệ ngay
+              {ctaSecondary}
             </button>
           </motion.div>
         </div>
@@ -125,8 +154,8 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
                 <Leaf className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] text-[#B48F57] font-bold uppercase tracking-wider font-mono">Khơi Gợi</span>
-                <span className="text-xs font-bold text-[#0A4E35]">Sắc Độ Tâm Hồn</span>
+                <span className="text-[10px] text-[#B48F57] font-bold uppercase tracking-wider font-mono">{bLabel1}</span>
+                <span className="text-xs font-bold text-[#0A4E35]">{bSub1}</span>
               </div>
             </motion.div>
 
@@ -140,8 +169,8 @@ export default function Hero({ onExploreServices, onExploreWork }: HeroProps) {
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] text-[#B48F57] font-bold uppercase tracking-wider font-mono">Che Chở</span>
-                <span className="text-xs font-bold text-[#0A4E35]">Vững Chãi Nắng Mưa</span>
+                <span className="text-[10px] text-[#B48F57] font-bold uppercase tracking-wider font-mono">{bLabel2}</span>
+                <span className="text-xs font-bold text-[#0A4E35]">{bSub2}</span>
               </div>
             </motion.div>
           </motion.div>

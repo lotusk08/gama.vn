@@ -69,9 +69,9 @@ export default function Sustainability() {
   const activeData = pillars.find(p => p.id === activePillar) || pillars[0];
 
   return (
-    <div className="bg-white min-h-screen text-slate-900 pt-24 font-sans">
+    <div className="bg-white min-h-screen text-slate-900 font-sans">
       {/* 1. HERO EDITORIAL SECTION */}
-      <section className="bg-gradient-to-b from-[#EEF5ED]/70 via-white to-white py-24 sm:py-32 relative overflow-hidden border-b border-gray-100">
+      <section className="bg-gradient-to-b from-[#EEF5ED]/70 via-white to-white pt-36 sm:pt-44 pb-24 sm:pb-32 relative overflow-hidden border-b border-gray-100">
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <div className="absolute right-0 top-0 w-96 h-96 bg-[#B48F57]/10 rounded-full blur-3xl" />
           <div className="absolute left-10 bottom-10 w-80 h-80 bg-[#0A4E35]/5 rounded-full blur-3xl" />
@@ -273,7 +273,7 @@ export default function Sustainability() {
                   "Với GAMA, bảo vệ bền vững không phải là một chiến dịch tiếp thị nhất thời. Đó là nền tảng cốt lõi của khoa học phân tử, đảm bảo công trình chống chịu tốt nhất trước thời tiết biển mà không tàn phá hệ sinh thái."
                 </p>
                 <div className="border-t border-slate-100 pt-4">
-                  <span className="text-xs font-bold text-[#0A4E35] block">Kỹ sư trưởng Lê Trọng Đạt</span>
+                  <span className="text-xs font-bold text-[#0A4E35] block">Kỹ sư trưởng Trần Đức Mỹ</span>
                   <span className="text-[10px] text-gray-400">Giám đốc Quản lý Kỹ thuật, GAMA Industrial</span>
                 </div>
               </div>

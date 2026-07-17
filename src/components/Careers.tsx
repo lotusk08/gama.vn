@@ -179,7 +179,7 @@ export default function Careers() {
   };
 
   return (
-    <section className="py-32 bg-white overflow-hidden min-h-screen">
+    <section className="pt-36 pb-32 bg-white overflow-hidden min-h-screen">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         
         {/* Page Header */}
@@ -246,7 +246,7 @@ export default function Careers() {
 
                 <div className="flex justify-between items-center pt-6 border-t border-white/10 text-xs font-sans mt-2">
                   <div>
-                    <p className="font-bold uppercase tracking-wider text-[#B48F57]">Lê Hoàng Nam</p>
+                    <p className="font-bold uppercase tracking-wider text-[#B48F57]">Nguyễn Thị Kim Tiền</p>
                     <p className="text-[10px] text-gray-300">Giám đốc Nhân sự & Tuyển dụng</p>
                   </div>
                   <div className="text-[10px] font-mono text-[#B48F57] bg-white/5 px-2.5 py-1 rounded">

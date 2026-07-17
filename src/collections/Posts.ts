@@ -4,6 +4,12 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
+    livePreview: {
+      url: ({ data }) => {
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+        return `${baseUrl}/?tab=blog&post=${data.id}&preview=true`;
+      },
+    },
   },
   access: {
     read: () => true,

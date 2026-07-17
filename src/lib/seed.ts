@@ -533,6 +533,265 @@ async function seed() {
     }
   }
 
+
+  // 6. Seed Header Global
+  console.log('Seeding Header global...');
+  const heroBannerMedia = await payload.find({
+    collection: 'media',
+    where: { alt: { equals: 'hero-banner' } },
+    limit: 1,
+  });
+  const heroBannerId = heroBannerMedia.docs[0]?.id;
+
+  const colorYearMedia = await payload.find({
+    collection: 'media',
+    where: { alt: { equals: 'color-year' } },
+    limit: 1,
+  });
+  const colorYearId = colorYearMedia.docs[0]?.id;
+
+  await payload.updateGlobal({
+    slug: 'header',
+    data: {
+      siteTitle: 'GAMA.vn - Nơi chuyên môn hóa học kiến tạo tương lai',
+      siteDescription: 'GAMA cung cấp giải pháp sơn phủ, chống thấm kiến trúc và công nghiệp cao cấp tiêu chuẩn xanh.',
+      logo: heroBannerId, // can fall back or use a specific logo image if one exists
+      navItems: [
+        { 
+          label: 'Về GAMA', 
+          tabId: 'about',
+          hasSubMenu: true,
+          subMenuItems: [
+            { label: 'Lịch sử', tabId: 'about-history' },
+            { label: 'Thương hiệu', tabId: 'about-brands' },
+            { label: 'Lời hứa từ sứ mệnh', tabId: 'about-creed' },
+            { label: 'Công ty thành viên', tabId: 'about-subsidiaries' },
+            { label: 'Năng lực & chứng chỉ', tabId: 'about-certificates' },
+          ]
+        },
+        { label: 'Phát triển bền vững', tabId: 'sustainability' },
+        { label: 'Sáng tạo & Đột phá', tabId: 'innovation' },
+        { label: 'Tin tức', tabId: 'blog' },
+        { label: 'Tuyển dụng', tabId: 'careers' },
+      ],
+      topBarTicker: {
+        stockSymbol: 'HOSE: GAMA',
+        stockChange: '+1.45% (28,400đ)',
+        certificationText: 'Tiêu chuẩn quốc tế ISO 9001:2015 & Hợp quy QCVN 16 Bộ Xây dựng',
+      },
+      topBarLinks: [
+        { label: 'Báo Cáo Thường Niên 2026', tabId: 'about' },
+        { label: 'Yêu cầu báo giá dự án', tabId: 'contact' },
+      ],
+    },
+  });
+  console.log('Header global seeded!');
+
+  // 7. Seed Footer Global
+  console.log('Seeding Footer global...');
+  await payload.updateGlobal({
+    slug: 'footer',
+    data: {
+      tagline: 'Mưa nắng ngoài thềm. Bình yên trong tổ ấm.',
+      email: 'contact@gama.vn',
+      phone: '1800 9000',
+      address: 'Văn phòng chính GAMA, TP. Hồ Chí Minh',
+      socialLinks: {
+        linkedin: '#',
+        facebook: '#',
+        instagram: '#',
+        twitter: '#',
+      },
+      copyright: '© 2026 GAMA GROUP CO., LTD',
+      newsletterTitle: 'Bản tin định kỳ',
+      newsletterText: 'Đăng ký để nhận các bản tin nội bộ định kỳ, báo cáo thường niên và cập nhật đổi mới từ GAMA GROUP CO., LTD.',
+      footerLinks: [
+        { label: 'Về GAMA', tabId: 'about' },
+        { label: 'Phát triển bền vững', tabId: 'sustainability' },
+        { label: 'Sáng tạo & Đột phá', tabId: 'innovation' },
+        { label: 'Tin tức', tabId: 'blog' },
+        { label: 'Tuyển dụng', tabId: 'careers' },
+        { label: 'Liên hệ', tabId: 'contact' },
+      ],
+      certifications: [
+        { label: 'Đạt chuẩn ISO 9001', icon: 'ShieldCheck' },
+        { label: 'Tiêu chuẩn xanh LEED', icon: 'Star' },
+      ],
+    },
+  });
+  console.log('Footer global seeded!');
+
+  // 8. Seed Pages (Home Page with all blocks)
+  console.log('Seeding Home Page with demo layout blocks...');
+  const existingHome = await payload.find({
+    collection: 'pages',
+    where: {
+      slug: { equals: 'home' },
+    },
+    limit: 1,
+  });
+
+  const homePageData = {
+    title: 'Trang chủ',
+    slug: 'home',
+    layout: [
+      {
+        blockType: 'hero',
+        title: 'Sắc màu tĩnh lặng. Chạm vào xúc cảm, giữ trọn bình yên.',
+        subtitle: 'Thương hiệu GAMA • Từ năm 1994',
+        description: 'Khi màng sơn không chỉ là lớp phủ vô tri, nó trở thành ngôn ngữ của không gian, che chở những điều quý giá nhất. GAMA chế tác những dải sắc độ bền bỉ cùng thời gian, thấu hiểu sâu sắc từng nếp nhà nhiệt đới và đồng hành cùng khát vọng gìn giữ di sản tổ ấm qua các thế hệ.',
+        ctaPrimaryLabel: 'Khám phá lĩnh vực',
+        ctaSecondaryLabel: 'Liên hệ ngay',
+        badgeLabel: 'Khơi Gợi',
+        badgeSubLabel: 'Sắc Độ Tâm Hồn',
+        badgeLabel2: 'Che Chở',
+        badgeSubLabel2: 'Vững Chãi Nắng Mưa',
+        backgroundImage: heroBannerId,
+      },
+      {
+        blockType: 'core-values',
+        sectionLabel: '• TRỤ CỘT ĐỊNH VỊ & GIÁ TRỊ CỐT LÕI GAMA',
+        sectionTitle: 'Kiên định trong từng cam kết, đồng hành cùng mỗi mái ấm Việt.',
+        pillars: [
+          {
+            num: 'PILLAR 01',
+            category: 'CẢM XÚC & SỰ AN TÂM',
+            title: 'Chất lượng có thể kiểm chứng',
+            description: 'Sự bảo vệ không phải là một lời hứa suông trên giấy tờ. Đó là sự kiên định của ngôi nhà trước những cơn bão nhiệt đới dữ dội nhất, là lớp lá chắn vô hình dệt từ khoa học polymer tiên tiến để giữ trọn vẹn sự bình yên trong từng giấc ngủ của gia đình bạn.',
+            quote: '"Durability is not written in certificates; it is the silent guard that keeps your family safe while the storm rages outside."',
+            iconName: 'ShieldCheck',
+          },
+          {
+            num: 'PILLAR 02',
+            category: 'SỰ TÔN TRỌNG NGHỀ NGHIỆP',
+            title: 'Đồng hành cùng người thợ',
+            description: 'Chúng tôi thấu hiểu từng giọt mồ hôi trên bờ vai ướt đẫm, thấu hiểu khát khao thổi hồn vào những khối bê tông vô tri của những người thợ sơn Việt Nam. GAMA đứng bên cạnh họ với sự thấu cảm sâu sắc, cung cấp những giải pháp tinh xảo nhất để thăng hoa tay nghề của người nghệ nhân đích thực.',
+            quote: '"We stand with those whose hands turn bare walls into warm sanctuaries, honoring their artistry with deep mutual respect."',
+            iconName: 'Paintbrush',
+          },
+          {
+            num: 'PILLAR 03',
+            category: 'NGÔN NGỮ CỦA KHÔNG GIAN',
+            title: 'Màu sắc như một ngôn ngữ',
+            description: 'Màu sắc tại GAMA không đơn thuần là những hạt sắc tố hóa học vô tri. Chúng là ký ức, là cảm xúc dạt dào, là sự tĩnh lặng của tâm hồn sau một ngày dài mỏi mệt. Chúng tôi chắt lọc từng dải màu để chạm tới nơi sâu thẳm nhất trong trái tim của mỗi chủ nhà có gu thẩm mỹ duy mỹ.',
+            quote: '"Colors are not just paint; they are memory, mood, and the quiet, elegant language of your soul spoken aloud."',
+            iconName: 'Palette',
+          },
+          {
+            num: 'PILLAR 04',
+            category: 'BẢN SẮC & KHÁT VỌNG',
+            title: 'Gốc rễ Việt, tiêu chuẩn vươn xa',
+            description: 'Khởi nguồn từ trí tuệ và khát vọng của người Việt Nam, thấu hiểu sâu sắc từng cơn mưa rào dồn dập, cái nắng oi ả và hơi mặn mòi của biển cả quê hương. Từ mảnh đất kiên cường này, chúng tôi kiến tạo nên những sản phẩm chất lượng vượt tầm quốc tế, kiêu hãnh nâng tầm vị thế thương hiệu Việt.',
+            quote: '"Deeply rooted in Vietnamese soil, crafted with a local soul to transcend and conquer global ecological standards."',
+            iconName: 'Globe',
+          },
+        ],
+      },
+      {
+        blockType: 'color-year',
+        title: 'Màu của năm GAMA 2026',
+        description: 'Tìm hiểu về sắc thái màu độc bản lấy cảm hứng từ thiên nhiên nhiệt đới.',
+        backgroundImage: colorYearId,
+        shades: [
+          {
+            name: 'Deep Ocean',
+            vietnameseName: 'Xanh Đại Dương Sâu',
+            hex: '#213C4D',
+            description: 'Sắc xanh dương thẳm của lòng đại dương tĩnh lặng. Mang lại cảm giác kiên định, chiều sâu tri thức và sự bảo vệ vững chắc cho các công trình biệt thự, phòng khách cao cấp.',
+            complementary: 'Đất sét nung (Terracotta), Gỗ Sồi tự nhiên',
+          },
+          {
+            name: 'Nordic Mist',
+            vietnameseName: 'Sương Mù Bắc Âu',
+            hex: '#8BA1AC',
+            description: 'Một tông xanh trung tính dịu mát pha ánh xám bạc của làn sương sớm phương Bắc. Lý tưởng cho không gian làm việc sáng tạo, phòng ngủ thiền định, kiến tạo sự khoáng đạt và cân bằng.',
+            complementary: 'Trắng sứ thanh khiết, Đồng mạ mờ',
+          },
+          {
+            name: 'Calm Sky',
+            vietnameseName: 'Bầu Trời Tĩnh Lặng',
+            hex: '#D1E0E6',
+            description: 'Sắc xanh dịu nhẹ của bầu trời hừng đông. Mang lại cảm giác thư thái, nhẹ nhàng và ngập tràn năng lượng tích cực cho phòng ngủ của trẻ nhỏ và không gian nghỉ ngơi.',
+            complementary: 'Trắng tinh khiết, Màu gỗ nhạt',
+          },
+        ],
+      },
+      {
+        blockType: 'stats',
+        title: 'CÁC DỰ ÁN TIÊU BIỂU & ĐỐI TÁC KIẾN TRÚC',
+        clients: [
+          { name: 'City Land Garden Hills', category: 'Cung cấp Sơn & Sứ vệ sinh' },
+          { name: 'Topaz Home 1', category: 'Cung cấp Sơn phủ ngoại thất' },
+          { name: 'Topaz Elite', category: 'Cung cấp Sơn & Thiết bị vệ sinh' },
+          { name: 'Khu Đô Thị Bình An (Thủ Đức)', category: 'Sơn lót chống kiềm' },
+          { name: 'Bảy Hiền Tower', category: 'Cung cấp Thiết bị phòng tắm' },
+          { name: 'Văn Phòng 339 Điện Biên Phủ', category: 'Sơn phủ kiến trúc cao cấp' },
+          { name: 'Golden Island', category: 'Sơn phủ & Chống thấm màu' },
+          { name: 'Đại Học CNTT Thủ Đức', category: 'Sơn phủ bảo vệ & Chống thấm' },
+          { name: 'Big C Đà Lạt', category: 'Vật tư sơn chống rêu mốc' },
+          { name: 'Nhà Xưởng Jinyu', category: 'Bột trét & Sơn lót ngoại thất' },
+          { name: 'Big C An Lạc', category: 'Sơn chống thấm đa năng' },
+          { name: 'Big C Tân Hiệp', category: 'Thiết bị vệ sinh đồng bộ' },
+          { name: 'Big C Quy Nhơn', category: 'Sơn phủ ngoài trời chịu nhiệt' },
+        ],
+      },
+      {
+        blockType: 'testimonials',
+        title: 'Sự thấu cảm sâu sắc từ những người kiến thiết tổ ấm.',
+        subtitle: '• CẢM NHẬN CHIÊM NGHIỆM',
+        items: [
+          {
+            quote: '“Người ta thường nghĩ sơn chỉ là lớp ngoài cùng, nhưng với tôi, đó là chiếc áo dệt bằng xúc cảm của ngôi nhà. GAMA không chỉ tạo ra màu sắc, họ hiểu cách lưu giữ thời gian trên từng thớ tường phẳng mịn như lụa.”',
+            author: 'KTS. Lê Hoài Nam',
+            role: 'Nhà sáng lập & Giám đốc Sáng tạo',
+            company: 'Atelier Nam Concept',
+          },
+          {
+            quote: '“Hơn ba mươi năm cầm cọ thi công, tôi chưa từng chạm tay vào màng sơn nào có độ che phủ tự nhiên và mịn màng như men sứ của GAMA. Khi thi công dòng G14, màng sơn tự san phẳng phẳng lì, không để lại một vệt cọ nhỏ.”',
+            author: 'Nghệ nhân Nguyễn Văn Quân',
+            role: 'Trưởng nhóm thi công di sản kiến trúc',
+            company: 'Hội Mỹ thuật Xây dựng Việt Nam',
+          },
+          {
+            quote: '“Giữa sương muối buốt giá của Đà Lạt, ngôi biệt thự gỗ đá của chúng tôi vẫn giữ nguyên vẹn sắc độ trầm ấm ban đầu nhờ lớp bảo vệ siêu bóng Nano từ GAMA. Một sự tĩnh lặng sang trọng, bền bỉ và vô cùng an tâm.”',
+            author: 'Bà Nguyễn Hương Giang',
+            role: 'Chủ sở hữu',
+            company: 'The Pine Hill Mansion (Đà Lạt)',
+          },
+          {
+            quote: '“Khi kiến tạo các công trình xanh đạt tiêu chuẩn sinh thái cao, chúng tôi đặt tiêu chí sức khỏe lên hàng đầu. Sơn nội thất sinh học của GAMA hoàn toàn không mùi, hàm lượng VOC gần như bằng không, mang lại bầu không khí trong lành nguyên bản ngay sau khi bàn giao.”',
+            author: 'Kỹ sư Trần Hoàng Bách',
+            role: 'Giám đốc Phát triển Bền vững',
+            company: 'Tập đoàn Địa ốc ECO-Green Việt Nam',
+          },
+        ],
+      },
+      {
+        blockType: 'cta-banner',
+        headline: 'Mưa nắng ngoài thềm. Bình yên trong tổ ấm.',
+        subtext: 'Những gì chúng tôi tinh chế hôm nay sẽ âm thầm che chở từng nhịp thở của ngôi nhà bạn mai sau. Lớp bảo vệ kiên cường của GAMA mang lại sự vững chãi bền lâu, nâng niu trọn vẹn từng khoảnh khắc bình yên.',
+        buttonLabel: 'Khởi đầu hành trình kiến tạo',
+        buttonTab: 'contact',
+      },
+    ],
+  };
+
+  if (existingHome.totalDocs === 0) {
+    await payload.create({
+      collection: 'pages',
+      data: homePageData as any,
+    });
+    console.log('Home page seeded with default blocks!');
+  } else {
+    // Update it so it contains all matching blocks
+    await payload.update({
+      collection: 'pages',
+      id: existingHome.docs[0].id,
+      data: homePageData as any,
+    });
+    console.log('Home page updated/synchronized with default blocks!');
+  }
+
   console.log('Database seeding completed successfully!');
   process.exit(0);
 }

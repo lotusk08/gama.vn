@@ -16,9 +16,9 @@ interface InnovationTech {
 
 export default function Innovation() {
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({
-    'cool-shield': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
-    'pure-shield': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-    'easy-wash': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    'cool-shield': '/api/media/file/innovation-1.jpg',
+    'pure-shield': '/api/media/file/innovation-2.jpg',
+    'easy-wash': '/api/media/file/innovation-3.jpg',
   });
 
   useEffect(() => {
@@ -28,9 +28,9 @@ export default function Innovation() {
         const data = await res.json();
         if (data.docs && data.docs.length > 0) {
           const map: Record<string, string> = {
-            'cool-shield': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
-            'pure-shield': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-            'easy-wash': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+            'cool-shield': '/api/media/file/innovation-1.jpg',
+            'pure-shield': '/api/media/file/innovation-2.jpg',
+            'easy-wash': '/api/media/file/innovation-3.jpg',
           };
           data.docs.forEach((doc: any) => {
             if (doc.alt === 'innovation-1') map['cool-shield'] = doc.url;
@@ -53,7 +53,7 @@ export default function Innovation() {
       enName: 'Heat-Reflective Technology',
       summary: 'Giải pháp giảm nhiệt chủ động cho mặt ngoài tòa nhà bằng cách tích hợp các hạt sắc tố có cấu trúc vi cầu rỗng phản xạ dải quang phổ hồng ngoại (tác nhân chính gây hấp thụ nhiệt nhiệt đới).',
       benefit: 'Hạ nhiệt độ bề mặt tường ngoại thất lên tới 5°C, giảm tải công suất điều hòa không khí trong nhà lên tới 15%.',
-      illustrationUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
+      illustrationUrl: '/api/media/file/innovation-1.jpg',
       metrics: [
         { label: 'Tỷ lệ phản xạ nhiệt hồng ngoại', value: '85%' },
         { label: 'Nhiệt độ tường thực tế giảm', value: 'Up to 5°C' },
@@ -71,7 +71,7 @@ export default function Innovation() {
       enName: 'Active Silver-Ion Protection',
       summary: 'Hệ thống phòng thủ vi sinh thông minh tự động kích hoạt nhờ các hạt nano ion bạc hoạt hóa cao phủ đều trong ma trận màng sơn, tiêu diệt mầm bệnh nguy hại khi tiếp xúc.',
       benefit: 'Tiêu diệt 99.9% vi rút, vi khuẩn đường ruột (E.coli) và ngăn ngừa triệt để sự ký sinh của rêu mốc, nấm ẩm ẩm ướt.',
-      illustrationUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+      illustrationUrl: '/api/media/file/innovation-2.jpg',
       metrics: [
         { label: 'Hiệu quả tiêu diệt vi khuẩn vi rút', value: '99.99%' },
         { label: 'Đạt chuẩn kiểm định an toàn y tế', value: 'JIS Z 2801' },
@@ -89,7 +89,7 @@ export default function Innovation() {
       enName: 'Self-Cleaning Nano Technology',
       summary: 'Ứng dụng cơ chế hoa sen (Lotus effect) với mật độ liên kết phân tử siêu mịn màng, làm mất khả năng bám dính của các phân tử bụi mịn, dầu mỡ hay bùn đất từ môi trường.',
       benefit: 'Bề mặt tường ngoại thất tự động rửa trôi bụi bẩn bám dính chỉ sau một cơn mưa rào tự nhiên, duy trì vẻ mỹ quan tươi mới lâu dài.',
-      illustrationUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+      illustrationUrl: '/api/media/file/innovation-3.jpg',
       metrics: [
         { label: 'Mức độ chống thấm nước bề mặt', value: 'Đạt tuyệt đối' },
         { label: 'Số chu kỳ chà rửa mô phỏng', value: '25,000 chu kỳ' },
@@ -106,9 +106,9 @@ export default function Innovation() {
   const [activeTech, setActiveTech] = useState<InnovationTech>(technologies[0]);
 
   return (
-    <div className="bg-white min-h-screen text-slate-900 pt-24 font-sans">
+    <div className="bg-white min-h-screen text-slate-900 font-sans">
       {/* 1. HERO INNOVATION SECTION */}
-      <section className="bg-[#EEF5ED]/40 py-24 sm:py-32 relative overflow-hidden border-b border-[#B48F57]/10">
+      <section className="bg-[#EEF5ED]/40 pt-36 sm:pt-44 pb-24 sm:pb-32 relative overflow-hidden border-b border-[#B48F57]/10">
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#000000_1px,transparent_1px),linear-gradient(to_bottom,#000000_1px,transparent_1px)] bg-[size:4rem_4rem]" />
         </div>
@@ -118,7 +118,7 @@ export default function Innovation() {
             <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] block mb-4 font-sans">
               • CÔNG NGHỆ & ĐỘT PHÁ // GAMA LAB MOLECULAR RESEARCH
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-serif font-extrabold tracking-tight leading-[1.1] mb-6 effect-font-styling effect-font-gama">
               Khoa học phân tử nâng tầm chất lượng sống
             </h1>
             <p className="text-gray-500 font-sans text-sm sm:text-base leading-relaxed max-w-3xl font-light">
@@ -141,7 +141,7 @@ export default function Innovation() {
       {/* 2. THE THREE CORE TECHNOLOGIES */}
       <section className="py-24 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 sm:px-12">
-          
+
           {/* Header Title */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-6">
             <div className="max-w-2xl">
@@ -159,11 +159,10 @@ export default function Innovation() {
                 <button
                   key={tech.id}
                   onClick={() => setActiveTech(tech)}
-                  className={`px-4.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                    activeTech.id === tech.id
+                  className={`px-4.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTech.id === tech.id
                       ? 'bg-[#0A4E35] text-white shadow-sm'
                       : 'text-[#0A4E35]/70 hover:text-[#0A4E35] hover:bg-white/50'
-                  }`}
+                    }`}
                 >
                   {tech.id === 'cool-shield' && 'Cool-Shield'}
                   {tech.id === 'pure-shield' && 'Pure-Shield'}
@@ -274,7 +273,7 @@ export default function Innovation() {
       {/* 3. SIMULATION EXPERIMENT LAB */}
       <section className="py-24 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           <div className="lg:col-span-6 flex flex-col gap-6">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-[#B48F57] block mb-3 font-sans">
@@ -284,7 +283,7 @@ export default function Innovation() {
                 Sự kiên cường được tôi luyện qua những bài thử thách vô cực
               </h2>
             </div>
-            
+
             <p className="text-gray-500 font-sans text-xs sm:text-sm leading-relaxed font-light">
               Mỗi mẻ sơn GAMA xuất xưởng đều phải trải qua hàng trăm giờ gia tốc thời tiết nhân tạo trong buồng thử nghiệm UVCON & sương muối tại phòng kỹ thuật của chúng tôi. Chúng tôi tạo ra điều kiện thời tiết khắc nghiệt gấp 10 lần thực tế để kiểm tra khả năng giữ màu màu sơn, khả năng giữ màng bảo vệ, bảo vệ tài sản kiến trúc vững vàng qua 15 năm nắng mưa dồn dập dập.
             </p>

@@ -1,8 +1,20 @@
 import { BlogPost, JobOpening } from '../types';
 
-// Retrieve the Payload CMS URL from Vite environment variables.
-// Users can configure this in their local environment or AI Studio settings.
-export const PAYLOAD_CMS_URL = (import.meta as any).env?.VITE_PAYLOAD_CMS_URL || '';
+// Retrieve the Payload CMS URL. If undefined, defaults to the current origin (since Next.js and Payload run on the same server).
+const getCmsUrl = (): string => {
+  if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_PAYLOAD_CMS_URL) {
+    return process.env.NEXT_PUBLIC_PAYLOAD_CMS_URL;
+  }
+  if (typeof process !== 'undefined' && process.env?.VITE_PAYLOAD_CMS_URL) {
+    return process.env.VITE_PAYLOAD_CMS_URL;
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'http://localhost:3000';
+};
+
+export const PAYLOAD_CMS_URL = getCmsUrl();
 
 export interface PayloadStatus {
   isConnected: boolean;
@@ -71,29 +83,69 @@ Bên cạnh đó, quy trình sản xuất khép kín tại các nhà máy GAMA �
   }
 ];
 
-/**
- * Utility to parse/transform Payload CMS API payload into the standard app BlogPost schema.
- * Payload CMS stores document lists in `docs`, where fields can vary slightly depending on custom schemas.
- */
+export function lexicalToHtml(node: any): string {
+  if (!node) return '';
+  if (typeof node === 'string') return node;
+  if (Array.isArray(node)) return node.map(lexicalToHtml).join('');
+  if (node.root && node.root.children) return lexicalToHtml(node.root.children);
+
+  const type = node.type;
+
+  if (type === 'paragraph') {
+    const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
+    return `<p className="mb-4">${content}</p>`;
+  }
+
+  if (type === 'heading') {
+    const tag = node.tag || 'h3';
+    const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
+    return `<${tag} className="text-xl font-bold mt-6 mb-2 text-[#0A4E35]">${content}</${tag}>`;
+  }
+
+  if (type === 'list') {
+    const tag = node.tag || 'ul';
+    const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
+    return `<${tag} className="list-disc pl-6 mb-4">${content}</${tag}>`;
+  }
+
+  if (type === 'listitem') {
+    const content = Array.isArray(node.children) ? node.children.map(lexicalToHtml).join('') : '';
+    return `<li>${content}</li>`;
+  }
+
+  if (type === 'text') {
+    let text = node.text || '';
+    if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
+    if (node.format & 2) text = `<em>${text}</em>`; // Italic
+    return text;
+  }
+
+  if (type === 'upload') {
+    const media = node.value;
+    if (media) {
+      const url = media.url || '';
+      const alt = media.alt || 'image';
+      const fullUrl = url.startsWith('/') ? `${PAYLOAD_CMS_URL}${url}` : url;
+      return `
+        <div className="my-6 rounded-2xl overflow-hidden shadow-lg border border-gray-150">
+          <img src="${fullUrl}" alt="${alt}" className="w-full h-auto object-cover max-h-[500px]" />
+          ${media.caption ? `<p className="text-xs text-gray-500 mt-2 text-center italic">${media.caption}</p>` : ''}
+        </div>
+      `;
+    }
+  }
+
+  return '';
+}
+
 function transformPayloadDoc(doc: any): BlogPost {
-  // Extract content. Payload rich text can be a complex JSON array of nodes.
-  // We'll extract raw text if it is formatted, or default to standard string content.
   let contentText = '';
   if (typeof doc.content === 'string') {
     contentText = doc.content;
-  } else if (doc.content && Array.isArray(doc.content)) {
-    // Basic rich text to plain text converter for Payload standard Lexical/Slate formats
-    contentText = doc.content
-      .map((block: any) => {
-        if (block.children && Array.isArray(block.children)) {
-          return block.children.map((child: any) => child.text || '').join('');
-        }
-        return '';
-      })
-      .filter(Boolean)
-      .join('\n\n');
+  } else if (doc.content && typeof doc.content === 'object') {
+    contentText = lexicalToHtml(doc.content);
   } else if (doc.content_html) {
-    contentText = doc.content_html; // backup html version
+    contentText = doc.content_html;
   } else {
     contentText = JSON.stringify(doc.content || '');
   }

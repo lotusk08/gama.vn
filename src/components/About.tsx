@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Shield, 
-  Sparkles, 
-  Droplets, 
-  Users, 
+import {
+  Shield,
+  Sparkles,
+  Droplets,
+  Users,
   Building,
   Factory,
   Award,
@@ -225,14 +225,14 @@ export default function About() {
       desc: 'Người sáng lập dẫn dắt sự phát triển vượt bậc của GAMA, tiên phong trong chiến lược đa dạng hóa hệ sinh thái sản phẩm sơn và thiết bị vệ sinh cao cấp.'
     },
     {
-      name: 'Ông Lê Hoàng Nam',
-      role: 'Giám đốc Nhân sự & Tuyển dụng',
+      name: 'Bà Nguyễn Thị Kim Tiền',
+      role: 'Giám đốc Nhân sự',
       credentials: 'Ban Lãnh đạo Tập đoàn GAMA',
       desc: 'Chịu trách nhiệm kiến tạo văn hóa doanh nghiệp kỷ luật, tận tâm và đổi mới; xây dựng đội ngũ kỹ sư hóa chất và kỹ thuật viên trình độ cao.'
     },
     {
-      name: 'Ban kỹ thuật R&D Sơn GAMA',
-      role: 'Nghiên cứu & Phát triển Công nghệ',
+      name: 'GAMA R&D',
+      role: 'Nghiên cứu & Phát triển',
       credentials: 'Phòng nghiên cứu polymer GAMA',
       desc: 'Đội ngũ chuyên gia hóa vật liệu chịu trách nhiệm nghiên cứu ứng dụng nhựa acrylic tiên tiến, công nghệ liên kết chéo "cross-linking" chống phai màu màu sắc.'
     }
@@ -240,7 +240,7 @@ export default function About() {
 
   return (
     <section className="bg-slate-50 min-h-screen text-slate-800 selection:bg-[#0A4E35]/10 selection:text-[#0A4E35]">
-      
+
       {/* 1. EDITORIAL HERO GREETING */}
       <div className="bg-white border-b border-slate-100 py-32 sm:py-40 relative overflow-hidden">
         {/* Subtle grid backdrop */}
@@ -253,7 +253,7 @@ export default function About() {
 
         <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-            
+
             <div className="lg:col-span-8">
               <div className="flex items-center gap-2 mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B48F57]" />
@@ -261,8 +261,8 @@ export default function About() {
                   Tâm Hồn & Khoa Học Của GAMA
                 </span>
               </div>
-              
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1] mb-6">
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-extrabold tracking-tight leading-[1.1] mb-6 effect-font-styling effect-font-gama">
                 CÔNG TY TNHH TẬP ĐOÀN GAMA<br />
                 <span className="text-[#B48F57] font-sans text-lg sm:text-2xl block mt-3 font-medium tracking-wide">
                   GAMA GROUP COMPANY LIMITED
@@ -291,8 +291,8 @@ export default function About() {
                   <span className="inline-flex items-center gap-1.5 font-bold text-[#0A4E35]">
                     <span>Hotline Sứ vệ sinh: 0902.949.946</span>
                   </span>
-                  <a 
-                    href="mailto:contacts@gama.vn" 
+                  <a
+                    href="mailto:contacts@gama.vn"
                     className="inline-flex items-center gap-1.5 font-bold text-[#B48F57] hover:text-[#0A4E35] transition-colors"
                   >
                     <span>Email: contacts@gama.vn</span>
@@ -305,7 +305,7 @@ export default function About() {
               <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block border-b border-slate-200 pb-3">
                 // SỐ LIỆU NĂNG LỰC GAMA
               </span>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <span className="block text-3xl font-serif font-bold text-[#0A4E35]">1000m²</span>
@@ -337,7 +337,7 @@ export default function About() {
 
       {/* 2. REACH TO THE HEART: THE SOUL OF GAMA (MISSION, VISION, CORE VALUES & ORIGIN STORY) */}
       <div className="max-w-7xl mx-auto px-6 sm:px-12 py-32 sm:py-40 border-b border-slate-200/60 bg-white rounded-b-[48px] shadow-md relative z-20 -mt-12">
-        
+
         {/* Poetic Quote block */}
         <div className="max-w-4xl mx-auto text-center mb-24">
           <Heart className="w-6 h-6 text-[#B48F57] mx-auto mb-6 animate-pulse" />
@@ -349,7 +349,7 @@ export default function About() {
 
         {/* Vision & Mission bento cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
-          
+
           <div className="bg-slate-50 rounded-[32px] p-8 sm:p-12 border border-slate-150 relative overflow-hidden group flex flex-col justify-between">
             <div className="absolute right-6 top-6 opacity-5 group-hover:opacity-10 transition-opacity">
               <Eye className="w-32 h-32 text-[#0A4E35]" />
@@ -390,7 +390,7 @@ export default function About() {
 
         {/* Human story & origin (Reach to the heart) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-24">
-          
+
           <div className="lg:col-span-6 flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <History className="w-4 h-4 text-[#B48F57]" />
@@ -417,7 +417,7 @@ export default function About() {
               <div className="absolute right-4 top-4 text-xs font-mono text-[#B48F57] uppercase tracking-wider select-none">
                 // CAM KẾT TỪ GAMA
               </div>
-              
+
               <div className="flex flex-col gap-5">
                 <div className="w-10 h-10 rounded-full bg-[#B48F57]/15 flex items-center justify-center text-[#B48F57]">
                   <Award className="w-5 h-5" />
@@ -425,7 +425,7 @@ export default function About() {
                 <h4 className="font-serif font-bold text-lg text-[#0A4E35]">
                   Ba trụ cột hóa học từ trái tim
                 </h4>
-                
+
                 <ul className="flex flex-col gap-5 text-xs sm:text-sm text-slate-600 font-light">
                   <li className="flex gap-3">
                     <span className="font-mono text-[#B48F57] font-bold">I.</span>
@@ -460,7 +460,7 @@ export default function About() {
       {/* OUR BUSINESSES SECTION (AKZONOBEL-STYLE) */}
       <div id="our-businesses-section" className="bg-white py-32 border-b border-slate-200/60 relative z-20">
         <div className="max-w-7xl mx-auto px-6 sm:px-12">
-          
+
           {/* Section Header */}
           <div className="max-w-3xl mb-20">
             <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-[#B48F57] block mb-3">
@@ -476,7 +476,7 @@ export default function About() {
 
           {/* Business Units Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             {/* Business Unit 1: Paints & Coatings */}
             <div className="bg-slate-50 rounded-[32px] p-8 sm:p-10 border border-slate-200 hover:border-[#B48F57]/30 hover:shadow-lg transition-all duration-300 flex flex-col justify-between group">
               <div>
@@ -563,9 +563,8 @@ export default function About() {
           <div className="flex gap-4 sm:gap-8 overflow-x-auto scrollbar-none w-full justify-around">
             <button
               onClick={() => setActiveTabSection('factories')}
-              className={`pb-4 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider relative cursor-pointer whitespace-nowrap transition-colors ${
-                activeTabSection === 'factories' ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
-              }`}
+              className={`pb-4 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider relative cursor-pointer whitespace-nowrap transition-colors ${activeTabSection === 'factories' ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
+                }`}
             >
               Hạ tầng & Showroom
               {activeTabSection === 'factories' && (
@@ -575,9 +574,8 @@ export default function About() {
 
             <button
               onClick={() => setActiveTabSection('certifications')}
-              className={`pb-4 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider relative cursor-pointer whitespace-nowrap transition-colors ${
-                activeTabSection === 'certifications' ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
-              }`}
+              className={`pb-4 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider relative cursor-pointer whitespace-nowrap transition-colors ${activeTabSection === 'certifications' ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
+                }`}
             >
               Chứng chỉ quốc tế
               {activeTabSection === 'certifications' && (
@@ -600,8 +598,8 @@ export default function About() {
                 className="grid grid-cols-1 md:grid-cols-3 gap-8"
               >
                 {factories.map((fac, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="bg-white rounded-2xl p-8 border border-slate-200/80 hover:border-[#B48F57]/40 shadow-sm transition-all duration-300 flex flex-col justify-between"
                   >
                     <div>
@@ -609,7 +607,7 @@ export default function About() {
                         <Factory className="w-5 h-5 text-[#B48F57]" />
                       </div>
                       <h4 className="font-serif font-extrabold text-[#0A4E35] text-lg mb-2">{fac.name}</h4>
-                      
+
                       <div className="flex items-start gap-1.5 mb-4 text-[11px] text-slate-400 font-sans font-medium">
                         <MapPin className="w-3.5 h-3.5 text-[#B48F57] shrink-0 mt-0.5" />
                         <span>{fac.address}</span>
@@ -637,8 +635,8 @@ export default function About() {
                 className="grid grid-cols-1 md:grid-cols-2 gap-8"
               >
                 {certifications.map((cert, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="bg-white rounded-2xl p-8 border border-slate-200/80 shadow-sm hover:border-[#B48F57]/30 hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
                   >
                     <div className="flex flex-col sm:flex-row gap-6">
@@ -660,7 +658,7 @@ export default function About() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -697,7 +695,7 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {leadership.map((person, i) => (
-              <div 
+              <div
                 key={i}
                 className="bg-white rounded-[24px] p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300"
               >
@@ -746,9 +744,8 @@ export default function About() {
                 <button
                   key={item.year}
                   onClick={() => setActiveTimelineYear(item.year)}
-                  className={`text-sm font-mono font-bold pb-2 px-2 transition-all relative shrink-0 cursor-pointer ${
-                    activeTimelineYear === item.year ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`text-sm font-mono font-bold pb-2 px-2 transition-all relative shrink-0 cursor-pointer ${activeTimelineYear === item.year ? 'text-[#0A4E35]' : 'text-slate-400 hover:text-slate-600'
+                    }`}
                 >
                   {item.year}
                   {activeTimelineYear === item.year && (
@@ -783,7 +780,7 @@ export default function About() {
                         <div className="text-6xl font-serif font-black text-[#B48F57] leading-none shrink-0 md:border-r border-slate-100 md:pr-10 z-10 font-mono">
                           {item.year}
                         </div>
-                        
+
                         <div className="z-10">
                           <h4 className="font-serif font-extrabold text-lg sm:text-xl text-[#0A4E35] mb-3">
                             {item.title}
@@ -814,7 +811,7 @@ export default function About() {
             >
               {/* Gold decorative top bar */}
               <div className="h-2 bg-gradient-to-r from-[#0A4E35] via-[#B48F57] to-[#0A4E35]" />
-              
+
               {/* Close Button */}
               <button
                 onClick={() => setSelectedCert(null)}
@@ -824,7 +821,7 @@ export default function About() {
               </button>
 
               <div className="p-8 sm:p-12 overflow-y-auto max-h-[85vh] flex flex-col gap-8">
-                
+
                 {/* Official Header */}
                 <div className="text-center flex flex-col items-center border-b border-slate-100 pb-8 relative">
                   <div className="w-16 h-16 bg-[#EEF5ED] rounded-full flex items-center justify-center border border-[#0A4E35]/15 mb-4 text-[#0A4E35]">
@@ -844,7 +841,7 @@ export default function About() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  
+
                   {/* Left Column: Quick highlights & registry stamps */}
                   <div className="lg:col-span-4 flex flex-col gap-6">
                     <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-4">
@@ -873,7 +870,7 @@ export default function About() {
                     {/* Stamp illustration rendering */}
                     <div className="border border-[#B48F57]/15 rounded-2xl p-6 flex flex-col items-center text-center relative overflow-hidden bg-slate-50/50">
                       <div className="absolute inset-0 bg-[radial-gradient(#B48F57_1px,transparent_1px)] [background-size:16px_16px] opacity-10" />
-                      
+
                       {/* Stamp Ring Mockup */}
                       <div className="w-24 h-24 rounded-full border-4 border-dashed border-rose-600/30 flex items-center justify-center relative p-1 z-10 mb-4 animate-[spin_60s_linear_infinite]">
                         <div className="w-full h-full rounded-full border border-rose-600/50 flex flex-col items-center justify-center text-[5px] font-mono text-rose-600/80 font-bold leading-tight">
@@ -882,17 +879,17 @@ export default function About() {
                           <span>HỢP QUY CHẤT LƯỢNG</span>
                         </div>
                       </div>
-                      
+
                       <div className="z-10">
                         <span className="text-[9px] text-rose-600/90 font-mono font-bold tracking-widest uppercase">ĐÃ ĐỐI CHIẾU BẢN GỐC</span>
-                        <p className="text-[10px] text-slate-400 font-sans mt-1">Hồ sơ lưu trữ điện tử, ký duyệt bởi: <br/><strong className="text-[#0A4E35] font-semibold">{selectedCert.director}</strong></p>
+                        <p className="text-[10px] text-slate-400 font-sans mt-1">Hồ sơ lưu trữ điện tử, ký duyệt bởi: <br /><strong className="text-[#0A4E35] font-semibold">{selectedCert.director}</strong></p>
                       </div>
                     </div>
                   </div>
 
                   {/* Right Column: Detailed clauses, tables & registry lists */}
                   <div className="lg:col-span-8 flex flex-col gap-6">
-                    
+
                     {/* Excerpt */}
                     <div>
                       <h4 className="text-xs font-mono font-bold text-[#B48F57] uppercase tracking-wider mb-2">• PHẠM VI ÁP DỤNG & HIỆU LỰC</h4>
@@ -989,7 +986,7 @@ export default function About() {
                           <p className="text-[10px] text-slate-500 font-sans mt-0.5">Áp dụng giám sát định kỳ hàng năm theo quy định pháp lý.</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex gap-4 text-xs font-mono">
                         <div className="flex flex-col">
                           <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">NGÀY CẤP</span>

@@ -12,10 +12,59 @@ interface ColorShade {
   complementary: string;
 }
 
-export default function ColorOfTheYear() {
-  const [bgImage, setBgImage] = useState("https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80");
+interface ColorOfTheYearProps {
+  data?: {
+    title?: string;
+    description?: string;
+    backgroundImage?: any;
+    shades?: Array<{
+      name: string;
+      vietnameseName?: string;
+      hex: string;
+      description?: string;
+      complementary?: string;
+    }>;
+  } | null;
+}
+
+const DEFAULT_SHADES: ColorShade[] = [
+  {
+    id: 'deep-ocean',
+    name: 'Deep Ocean',
+    vietnameseName: 'Xanh Đại Dương Sâu',
+    hex: '#213C4D',
+    desc: 'Sắc xanh dương thẳm của lòng đại dương tĩnh lặng. Mang lại cảm giác kiên định, chiều sâu tri thức và sự bảo vệ vững chắc cho các công trình biệt thự, phòng khách cao cấp.',
+    complementary: 'Đất sét nung (Terracotta), Gỗ Sồi tự nhiên'
+  },
+  {
+    id: 'nordic-mist',
+    name: 'Nordic Mist',
+    vietnameseName: 'Sương Mù Bắc Âu',
+    hex: '#8BA1AC',
+    desc: 'Một tông xanh trung tính dịu mát pha ánh xám bạc của làn sương sớm phương Bắc. Lý tưởng cho không gian làm việc sáng tạo, phòng ngủ thiền định, kiến tạo sự khoáng đạt và cân bằng.',
+    complementary: 'Trắng sứ thanh khiết, Đồng mạ mờ'
+  },
+  {
+    id: 'calm-sky',
+    name: 'Calm Sky',
+    vietnameseName: 'Bầu Trời Tĩnh Lặng',
+    hex: '#D5E1E6',
+    desc: 'Sắc xanh phấn nhạt của bầu trời hừng đông tinh khôi. Mang lại cảm xúc thuần khiết, rộng mở, xoa dịu mọi căng thẳng và tối ưu hóa khả năng tán xạ ánh sáng tự nhiên.',
+    complementary: 'Xanh Slate đậm, Kim loại đen tối giản'
+  }
+];
+
+export default function ColorOfTheYear({ data }: ColorOfTheYearProps = {}) {
+  const [bgImage, setBgImage] = useState("/api/media/file/color-year.jpg");
 
   useEffect(() => {
+    if (data?.backgroundImage) {
+      if (typeof data.backgroundImage === 'object' && data.backgroundImage.url) {
+        setBgImage(data.backgroundImage.url);
+        return;
+      }
+    }
+
     async function fetchBgImage() {
       try {
         const res = await fetch('/api/media?where[alt][equals]=color-year');
@@ -28,33 +77,22 @@ export default function ColorOfTheYear() {
       }
     }
     fetchBgImage();
-  }, []);
-  const shades: ColorShade[] = [
-    {
-      id: 'deep-ocean',
-      name: 'Deep Ocean',
-      vietnameseName: 'Xanh Đại Dương Sâu',
-      hex: '#213C4D',
-      desc: 'Sắc xanh dương thẳm của lòng đại dương tĩnh lặng. Mang lại cảm giác kiên định, chiều sâu tri thức và sự bảo vệ vững chắc cho các công trình biệt thự, phòng khách cao cấp.',
-      complementary: 'Đất sét nung (Terracotta), Gỗ Sồi tự nhiên'
-    },
-    {
-      id: 'nordic-mist',
-      name: 'Nordic Mist',
-      vietnameseName: 'Sương Mù Bắc Âu',
-      hex: '#8BA1AC',
-      desc: 'Một tông xanh trung tính dịu mát pha ánh xám bạc của làn sương sớm phương Bắc. Lý tưởng cho không gian làm việc sáng tạo, phòng ngủ thiền định, kiến tạo sự khoáng đạt và cân bằng.',
-      complementary: 'Trắng sứ thanh khiết, Đồng mạ mờ'
-    },
-    {
-      id: 'calm-sky',
-      name: 'Calm Sky',
-      vietnameseName: 'Bầu Trời Tĩnh Lặng',
-      hex: '#D5E1E6',
-      desc: 'Sắc xanh phấn nhạt của bầu trời hừng đông tinh khôi. Mang lại cảm xúc thuần khiết, rộng mở, xoa dịu mọi căng thẳng và tối ưu hóa khả năng tán xạ ánh sáng tự nhiên.',
-      complementary: 'Xanh Slate đậm, Kim loại đen tối giản'
-    }
-  ];
+  }, [data?.backgroundImage]);
+
+  const shades: ColorShade[] = data?.shades && data.shades.length > 0
+    ? data.shades.map((s, idx) => ({
+        id: `shade-${idx}`,
+        name: s.name,
+        vietnameseName: s.vietnameseName ?? '',
+        hex: s.hex,
+        desc: s.description ?? '',
+        complementary: s.complementary ?? ''
+      }))
+    : DEFAULT_SHADES;
+
+  const sectionTitle = data?.title ?? 'Màu của năm GAMA 2026';
+  const sectionDesc = data?.description ?? 'Tìm hiểu về sắc thái màu độc bản lấy cảm hứng từ thiên nhiên nhiệt đới.';
+
 
   const lightings = [
     { id: 'morning', label: 'Ánh sáng Ban Mai', icon: <Sunrise className="w-4 h-4" />, overlay: 'rgba(251, 191, 36, 0.12)' },
@@ -75,10 +113,10 @@ export default function ColorOfTheYear() {
               • XU HƯỚNG SẮC MÀU CHỦ ĐẠO 2026 // DULUX & GAMA INSPIRED
             </span>
             <h2 className="text-3xl sm:text-[40px] font-serif font-extrabold text-[#0A4E35] tracking-tight leading-[1.1]">
-              Màu của năm 2026: Nhịp điệu xanh (Rhythm of Blues)
+              {sectionTitle}
             </h2>
             <p className="text-gray-500 font-sans mt-4 text-sm leading-relaxed font-light">
-              Hợp tác cùng các chuyên gia dự báo xu hướng toàn cầu, GAMA giới thiệu ba sắc độ tinh tuyển đại diện cho kỷ nguyên của sự phục hồi tâm hồn, chánh niệm và thiết kế bền vững. Hãy chạm để khám phá sự tương tác tuyệt diệu giữa màng sơn chất lượng cao và ánh sáng ban ngày.
+              {sectionDesc}
             </p>
           </div>
 
