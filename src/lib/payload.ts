@@ -2,14 +2,14 @@ import { BlogPost, JobOpening } from '../types';
 
 // Retrieve the Payload CMS URL. If undefined, defaults to the current origin (since Next.js and Payload run on the same server).
 const getCmsUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
   if (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_PAYLOAD_CMS_URL) {
     return process.env.NEXT_PUBLIC_PAYLOAD_CMS_URL;
   }
   if (typeof process !== 'undefined' && process.env?.VITE_PAYLOAD_CMS_URL) {
     return process.env.VITE_PAYLOAD_CMS_URL;
-  }
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
   }
   return 'http://localhost:3000';
 };

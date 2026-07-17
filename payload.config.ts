@@ -48,6 +48,7 @@ export default buildConfig({
     url: process.env.DATABASE_URI || 'mongodb://127.0.0.1:27017/gama',
   }),
   sharp,
+  cors: '*',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
