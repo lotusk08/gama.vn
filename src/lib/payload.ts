@@ -150,6 +150,10 @@ function transformPayloadDoc(doc: any): BlogPost {
     contentText = JSON.stringify(doc.content || '');
   }
 
+  // Safely extract author — Payload group fields return null when never saved
+  const authorName: string = doc.author?.name || doc.author?.username || 'GAMA Contributor';
+  const authorRole: string = doc.author?.role || 'Technical Specialist';
+
   return {
     id: doc.id || String(doc._id || Math.random()),
     title: doc.title || 'Untitled Post',
@@ -163,9 +167,9 @@ function transformPayloadDoc(doc: any): BlogPost {
     }) : new Date().toLocaleDateString('en-US')),
     readTime: doc.readTime || `${Math.max(3, Math.ceil((contentText.split(/\s+/).length || 100) / 200))} min read`,
     author: {
-      name: doc.author?.name || doc.author?.username || 'GAMA Contributor',
-      role: doc.author?.role || 'Technical Specialist'
-    }
+      name: authorName,
+      role: authorRole,
+    },
   };
 }
 

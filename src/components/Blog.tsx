@@ -235,7 +235,7 @@ export default function Blog() {
       post.title.toLowerCase().includes(searchLower) ||
       post.excerpt.toLowerCase().includes(searchLower) ||
       post.content.toLowerCase().includes(searchLower) ||
-      post.author.name.toLowerCase().includes(searchLower) ||
+      (post.author?.name ?? '').toLowerCase().includes(searchLower) ||
       post.category.toLowerCase().includes(searchLower);
 
     return matchesCategory && matchesSearch;
@@ -388,11 +388,11 @@ export default function Blog() {
                         <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-gray-200/60 text-xs font-sans">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-[#0A4E35]/10 flex items-center justify-center font-bold text-[#0A4E35] text-xs uppercase">
-                              {featuredPost.author.name.charAt(0)}
+                              {(featuredPost.author?.name ?? 'G').charAt(0)}
                             </div>
                             <div>
-                              <p className="font-bold text-[#0A4E35]">{featuredPost.author.name}</p>
-                              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{featuredPost.author.role}</p>
+                              <p className="font-bold text-[#0A4E35]">{featuredPost.author?.name ?? 'GAMA Contributor'}</p>
+                              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{featuredPost.author?.role ?? 'Technical Specialist'}</p>
                             </div>
                           </div>
 
@@ -447,12 +447,12 @@ export default function Blog() {
                         </div>
 
                         <div className="flex justify-between items-center pt-4 border-t border-gray-100 text-xs font-sans mt-auto">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#B48F57]/10 flex items-center justify-center font-bold text-[#B48F57] text-[10px] uppercase">
-                              {post.author.name.charAt(0)}
-                            </div>
-                            <span className="text-gray-600 font-medium text-[11px]">{post.author.name}</span>
-                          </div>
+                           <div className="flex items-center gap-2">
+                             <div className="w-6 h-6 rounded-full bg-[#B48F57]/10 flex items-center justify-center font-bold text-[#B48F57] text-[10px] uppercase">
+                               {(post.author?.name ?? 'G').charAt(0)}
+                             </div>
+                             <span className="text-gray-600 font-medium text-[11px]">{post.author?.name ?? 'GAMA Contributor'}</span>
+                           </div>
 
                           <div className="flex items-center gap-2">
                             <span className="text-gray-400 font-bold flex items-center gap-1 mr-2">
@@ -546,14 +546,14 @@ export default function Blog() {
 
                 {/* Author Bio Card Block */}
                 <div className="flex items-center gap-4 py-5 border-y border-gray-150/80 my-2">
-                  <div className="w-12 h-12 rounded-full bg-[#B48F57]/15 flex items-center justify-center text-[#B48F57] text-lg font-bold uppercase font-sans">
-                    {displayPost.author.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-serif font-bold text-base text-[#0A4E35]">{displayPost.author.name}</p>
-                    <p className="text-xs text-gray-500 font-sans font-medium">{displayPost.author.role} • Phòng nghiên cứu hóa chất GAMA</p>
-                  </div>
-                </div>
+                   <div className="w-12 h-12 rounded-full bg-[#B48F57]/15 flex items-center justify-center text-[#B48F57] text-lg font-bold uppercase font-sans">
+                     {(displayPost.author?.name ?? 'G').charAt(0)}
+                   </div>
+                   <div>
+                     <p className="font-serif font-bold text-base text-[#0A4E35]">{displayPost.author?.name ?? 'GAMA Contributor'}</p>
+                     <p className="text-xs text-gray-500 font-sans font-medium">{(displayPost.author?.role ?? 'Technical Specialist')} • Phòng nghiên cứu hóa chất GAMA</p>
+                   </div>
+                 </div>
 
                 {/* Immersive reading markdown/text space with stylized elements */}
                 <div className="font-sans text-sm sm:text-base text-[#0A4E35]/90 leading-relaxed whitespace-pre-line pr-4 flex flex-col gap-6 font-light">
