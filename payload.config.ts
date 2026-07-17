@@ -24,7 +24,6 @@ const storagePlugins = process.env.BLOB_READ_WRITE_TOKEN
   ? [
       vercelBlobStorage({
         enabled: true,
-        clientUploads: true,
         collections: {
           media: true,
         },
