@@ -1,0 +1,5 @@
+# Prevent local secret files from being uploaded to Vercel build environment.
+# Env vars are managed via Vercel Dashboard → Project Settings → Environment Variables.
+.env
+.env.local
+atlas-credentials.env
