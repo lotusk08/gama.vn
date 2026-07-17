@@ -9,6 +9,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   upload: {
     staticDir: path.resolve(dirname, '../../public/media'),
+    disableLocalStorage: !!process.env.BLOB_READ_WRITE_TOKEN,
     mimeTypes: ['image/*', 'video/*', 'application/pdf'],
     imageSizes: [
       {
