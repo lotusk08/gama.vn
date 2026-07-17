@@ -6,29 +6,18 @@
  * async Server Actions — never from `"use client"` files.
  */
 
-// The internal URL Next.js uses to reach the Payload API.
-// In production on Vercel this should be set to the full deployment URL.
-const PAYLOAD_URL =
-  process.env.PAYLOAD_URL ||
-  process.env.NEXT_PUBLIC_SERVER_URL ||
-  'http://localhost:3000';
+import { getPayload } from 'payload';
+import configPromise from '../../payload.config';
 
-/** Strip trailing slash once */
-const base = PAYLOAD_URL.replace(/\/$/, '');
+let payloadInstance: any = null;
 
-/** Generic fetch with cache: 'no-store' so globals are always fresh */
-async function payloadFetch<T>(path: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${base}${path}`, {
-      headers: { Accept: 'application/json' },
-      // next: { revalidate: 60 }, // optionally use ISR
-      cache: 'no-store',
+async function getPayloadClient() {
+  if (!payloadInstance) {
+    payloadInstance = await getPayload({
+      config: configPromise,
     });
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
-    return null;
   }
+  return payloadInstance;
 }
 
 // ─── Types (lightweight, used by server components before types are regenerated) ──
@@ -89,20 +78,53 @@ export interface PageDoc {
 
 /** Fetch the Header global */
 export async function getHeader(): Promise<HeaderGlobal | null> {
-  return payloadFetch<HeaderGlobal>('/api/globals/header?depth=1');
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.findGlobal({
+      slug: 'header',
+      depth: 1,
+    });
+    return data as HeaderGlobal;
+  } catch (err) {
+    console.error('Error fetching header global:', err);
+    return null;
+  }
 }
 
 /** Fetch the Footer global */
 export async function getFooter(): Promise<FooterGlobal | null> {
-  return payloadFetch<FooterGlobal>('/api/globals/footer?depth=1');
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.findGlobal({
+      slug: 'footer',
+      depth: 1,
+    });
+    return data as FooterGlobal;
+  } catch (err) {
+    console.error('Error fetching footer global:', err);
+    return null;
+  }
 }
 
 /** Fetch a Pages document by slug */
 export async function getPage(slug: string): Promise<PageDoc | null> {
-  const data = await payloadFetch<{ docs: PageDoc[] }>(
-    `/api/pages?where[slug][equals]=${encodeURIComponent(slug)}&depth=2&limit=1`,
-  );
-  return data?.docs?.[0] ?? null;
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: {
+          equals: slug,
+        },
+      },
+      depth: 2,
+      limit: 1,
+    });
+    return (data.docs?.[0] as PageDoc) ?? null;
+  } catch (err) {
+    console.error(`Error fetching page ${slug}:`, err);
+    return null;
+  }
 }
 
 /** Find the first block matching a given blockType in a layout array */
