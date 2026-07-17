@@ -12,7 +12,22 @@ const getCmsUrl = (): string => {
   return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
 };
 
+// Module-level constant: may be 'http://localhost:3000' when evaluated server-side.
+// DO NOT use this for actual fetch() calls from client components.
 export const PAYLOAD_CMS_URL = getCmsUrl();
+
+/**
+ * Always resolves to the correct API base URL at call time.
+ * Use this inside async functions instead of PAYLOAD_CMS_URL.
+ * - In the browser: uses window.location.origin (guaranteed correct on Vercel)
+ * - Server-side: uses NEXT_PUBLIC_SERVER_URL env var
+ */
+function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+}
 
 export interface PayloadStatus {
   isConnected: boolean;
@@ -184,67 +199,38 @@ function transformPayloadDoc(doc: any): BlogPost {
  * Validates connectivity to the configured Payload CMS API.
  */
 export async function checkPayloadConnection(): Promise<PayloadStatus> {
-  if (!PAYLOAD_CMS_URL) {
-    return {
-      isConnected: false,
-      url: '',
-      source: 'Local Demo Mode'
-    };
-  }
-
-  // Clean trailing slash
-  const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
+  const baseUrl = getApiBaseUrl();
 
   try {
-    // Try to ping Payload access endpoint
     const response = await fetch(`${baseUrl}/api/posts?limit=1`, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
-      signal: AbortSignal.timeout(4000) // 4 seconds timeout
+      signal: AbortSignal.timeout(4000)
     });
 
     if (response.ok) {
-      return {
-        isConnected: true,
-        url: baseUrl,
-        source: 'Payload CMS'
-      };
+      return { isConnected: true, url: baseUrl, source: 'Payload CMS' };
     } else {
       return {
-        isConnected: false,
-        url: baseUrl,
-        source: 'Local Demo Mode',
+        isConnected: false, url: baseUrl, source: 'Local Demo Mode',
         error: `API returned status ${response.status}: ${response.statusText}`
       };
     }
   } catch (err: any) {
     return {
-      isConnected: false,
-      url: baseUrl,
-      source: 'Local Demo Mode',
-      error: err.message || 'Unreachable or CORS policy blockage'
+      isConnected: false, url: baseUrl, source: 'Local Demo Mode',
+      error: err.message || 'Unreachable'
     };
   }
 }
 
 /**
- * Fetches all blog posts, either from Payload CMS or falling back to local storage/mock data.
+ * Fetches all blog posts from Payload CMS (MongoDB), falling back to local data on error.
  */
 export async function fetchBlogPosts(): Promise<{ posts: BlogPost[]; source: 'Payload CMS' | 'Local Demo Mode'; error?: string }> {
-  // If no Payload URL is defined, fall back immediately to local storage or defaults
-  if (!PAYLOAD_CMS_URL) {
-    const saved = localStorage.getItem('gama_local_posts');
-    if (saved) {
-      try {
-        return { posts: JSON.parse(saved), source: 'Local Demo Mode' };
-      } catch {
-        // ignore corruption
-      }
-    }
-    return { posts: INITIAL_BLOG_POSTS, source: 'Local Demo Mode' };
-  }
+  // Always resolve the URL at call time — never use the module-level constant here
+  const baseUrl = getApiBaseUrl();
 
-  const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
   try {
     const response = await fetch(`${baseUrl}/api/posts?limit=100&depth=1`, {
       method: 'GET',
@@ -260,21 +246,19 @@ export async function fetchBlogPosts(): Promise<{ posts: BlogPost[]; source: 'Pa
       const mappedPosts = data.docs.map(transformPayloadDoc);
       return { posts: mappedPosts, source: 'Payload CMS' };
     } else {
-      throw new Error('Response format is missing standard "docs" array');
+      throw new Error('Response missing "docs" array');
     }
   } catch (err: any) {
     console.warn('Payload CMS fetch failed, falling back to local posts:', err);
-    const saved = localStorage.getItem('gama_local_posts');
+    const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('gama_local_posts') : null;
     let localPosts = INITIAL_BLOG_POSTS;
     if (saved) {
-      try {
-        localPosts = JSON.parse(saved);
-      } catch {}
+      try { localPosts = JSON.parse(saved); } catch {}
     }
-    return { 
-      posts: localPosts, 
-      source: 'Local Demo Mode', 
-      error: `Failed to fetch from Payload CMS (${err.message || err}). Displaying local backups.` 
+    return {
+      posts: localPosts,
+      source: 'Local Demo Mode',
+      error: `Failed to fetch from Payload CMS (${err.message || err}).`
     };
   }
 }
@@ -439,19 +423,9 @@ function transformPayloadJob(doc: any): JobOpening {
 }
 
 export async function fetchCareers(): Promise<{ jobs: JobOpening[]; source: 'Payload CMS' | 'Local Demo Mode'; error?: string }> {
-  if (!PAYLOAD_CMS_URL) {
-    const saved = localStorage.getItem('gama_local_careers');
-    if (saved) {
-      try {
-        return { jobs: JSON.parse(saved), source: 'Local Demo Mode' };
-      } catch {
-        // ignore corruption
-      }
-    }
-    return { jobs: INITIAL_JOB_OPENINGS, source: 'Local Demo Mode' };
-  }
+  // Always resolve the URL at call time
+  const baseUrl = getApiBaseUrl();
 
-  const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
   try {
     const response = await fetch(`${baseUrl}/api/careers?limit=100&depth=1`, {
       method: 'GET',
@@ -467,21 +441,19 @@ export async function fetchCareers(): Promise<{ jobs: JobOpening[]; source: 'Pay
       const mappedJobs = data.docs.map(transformPayloadJob);
       return { jobs: mappedJobs, source: 'Payload CMS' };
     } else {
-      throw new Error('Response format is missing standard "docs" array');
+      throw new Error('Response missing "docs" array');
     }
   } catch (err: any) {
     console.warn('Payload CMS fetch careers failed, falling back to local careers:', err);
-    const saved = localStorage.getItem('gama_local_careers');
+    const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('gama_local_careers') : null;
     let localJobs = INITIAL_JOB_OPENINGS;
     if (saved) {
-      try {
-        localJobs = JSON.parse(saved);
-      } catch {}
+      try { localJobs = JSON.parse(saved); } catch {}
     }
-    return { 
-      jobs: localJobs, 
-      source: 'Local Demo Mode', 
-      error: `Failed to fetch from Payload CMS (${err.message || err}). Displaying local backups.` 
+    return {
+      jobs: localJobs,
+      source: 'Local Demo Mode',
+      error: `Failed to fetch from Payload CMS (${err.message || err}).`
     };
   }
 }
@@ -493,52 +465,32 @@ export async function submitJobApplication(
   email: string,
   cvUrl: string
 ): Promise<{ success: boolean; source: 'Payload CMS' | 'Local Demo Mode' }> {
-  if (PAYLOAD_CMS_URL) {
-    const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
-    try {
-      const response = await fetch(`${baseUrl}/api/submissions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          jobId,
-          jobTitle,
-          name,
-          email,
-          cvUrl
-        })
-      });
-
-      if (response.ok) {
-        return { success: true, source: 'Payload CMS' };
-      } else {
-        console.warn(`Payload CMS application POST failed with status ${response.status}`);
-      }
-    } catch (err) {
-      console.warn('Payload CMS application POST failed, falling back:', err);
+  const baseUrl = getApiBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/api/submissions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ jobId, jobTitle, name, email, cvUrl })
+    });
+    if (response.ok) {
+      return { success: true, source: 'Payload CMS' };
+    } else {
+      console.warn(`Payload CMS application POST failed with status ${response.status}`);
     }
+  } catch (err) {
+    console.warn('Payload CMS application POST failed, falling back:', err);
   }
 
-  const saved = localStorage.getItem('gama_local_applications');
-  let applications = [];
+  // Fallback: persist locally
+  const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('gama_local_applications') : null;
+  let applications: any[] = [];
   if (saved) {
-    try {
-      applications = JSON.parse(saved);
-    } catch {}
+    try { applications = JSON.parse(saved); } catch {}
   }
-
-  applications.push({
-    id: `app-${Date.now()}`,
-    jobId,
-    jobTitle,
-    name,
-    email,
-    cvUrl,
-    date: new Date().toISOString()
-  });
-
+  applications.push({ id: `app-${Date.now()}`, jobId, jobTitle, name, email, cvUrl, date: new Date().toISOString() });
   localStorage.setItem('gama_local_applications', JSON.stringify(applications));
   return { success: true, source: 'Local Demo Mode' };
 }
