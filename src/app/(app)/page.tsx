@@ -1,7 +1,17 @@
-// The root page is now rendered directly by layout.tsx via the App component.
-// Layout.tsx fetches CMS globals (header, footer) server-side and passes them to App.
-// App.tsx fetches page blocks client-side with graceful fallbacks.
-export default function Page() {
-  return null;
+import type { Metadata } from 'next';
+import { getPageByPath } from '../../lib/payloadApi';
+import HomeClient from '../../components/HomeClient';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const homePage = await getPageByPath('home');
+  return {
+    title: homePage?.seo?.metaTitle || homePage?.title || undefined,
+    description: homePage?.seo?.metaDescription || undefined,
+    openGraph: homePage?.seo?.ogImage?.url ? { images: [homePage.seo.ogImage.url] } : undefined,
+  };
 }
 
+export default async function Page() {
+  const homePage = await getPageByPath('home');
+  return <HomeClient homePage={homePage} />;
+}

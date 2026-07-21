@@ -484,22 +484,11 @@ async function seed() {
       siteDescription: 'GAMA cung cấp giải pháp sơn phủ, chống thấm kiến trúc và công nghiệp cao cấp tiêu chuẩn xanh.',
       logo: heroBannerId, // can fall back or use a specific logo image if one exists
       navItems: [
-        { 
-          label: 'Về GAMA', 
-          tabId: 'about',
-          hasSubMenu: true,
-          subMenuItems: [
-            { label: 'Lịch sử', tabId: 'about-history' },
-            { label: 'Thương hiệu', tabId: 'about-brands' },
-            { label: 'Lời hứa từ sứ mệnh', tabId: 'about-creed' },
-            { label: 'Công ty thành viên', tabId: 'about-subsidiaries' },
-            { label: 'Năng lực & chứng chỉ', tabId: 'about-certificates' },
-          ]
-        },
-        { label: 'Phát triển bền vững', tabId: 'sustainability' },
-        { label: 'Sáng tạo & Đột phá', tabId: 'innovation' },
-        { label: 'Tin tức', tabId: 'blog' },
-        { label: 'Tuyển dụng', tabId: 'careers' },
+        { label: 'Về GAMA', path: 'about', hasSubMenu: false },
+        { label: 'Phát triển bền vững', path: 'sustainability' },
+        { label: 'Sáng tạo & Đột phá', path: 'innovation' },
+        { label: 'Tin tức', path: 'blog' },
+        { label: 'Tuyển dụng', path: 'careers' },
       ],
       topBarTicker: {
         stockSymbol: 'HOSE: GAMA',
@@ -507,8 +496,8 @@ async function seed() {
         certificationText: 'Tiêu chuẩn quốc tế ISO 9001:2015 & Hợp quy QCVN 16 Bộ Xây dựng',
       },
       topBarLinks: [
-        { label: 'Báo Cáo Thường Niên 2026', tabId: 'about' },
-        { label: 'Yêu cầu báo giá dự án', tabId: 'contact' },
+        { label: 'Báo Cáo Thường Niên 2026', path: 'about' },
+        { label: 'Yêu cầu báo giá dự án', path: 'contact' },
       ],
     },
   });
@@ -533,12 +522,12 @@ async function seed() {
       newsletterTitle: 'Bản tin định kỳ',
       newsletterText: 'Đăng ký để nhận các bản tin nội bộ định kỳ, báo cáo thường niên và cập nhật đổi mới từ GAMA GROUP CO., LTD.',
       footerLinks: [
-        { label: 'Về GAMA', tabId: 'about' },
-        { label: 'Phát triển bền vững', tabId: 'sustainability' },
-        { label: 'Sáng tạo & Đột phá', tabId: 'innovation' },
-        { label: 'Tin tức', tabId: 'blog' },
-        { label: 'Tuyển dụng', tabId: 'careers' },
-        { label: 'Liên hệ', tabId: 'contact' },
+        { label: 'Về GAMA', path: 'about' },
+        { label: 'Phát triển bền vững', path: 'sustainability' },
+        { label: 'Sáng tạo & Đột phá', path: 'innovation' },
+        { label: 'Tin tức', path: 'blog' },
+        { label: 'Tuyển dụng', path: 'careers' },
+        { label: 'Liên hệ', path: 'contact' },
       ],
       certifications: [
         { label: 'Đạt chuẩn ISO 9001', icon: 'ShieldCheck' },
@@ -698,7 +687,7 @@ async function seed() {
         headline: 'Mưa nắng ngoài thềm. Bình yên trong tổ ấm.',
         subtext: 'Những gì chúng tôi tinh chế hôm nay sẽ âm thầm che chở từng nhịp thở của ngôi nhà bạn mai sau. Lớp bảo vệ kiên cường của GAMA mang lại sự vững chãi bền lâu, nâng niu trọn vẹn từng khoảnh khắc bình yên.',
         buttonLabel: 'Khởi đầu hành trình kiến tạo',
-        buttonTab: 'contact',
+        buttonPath: 'contact',
       },
     ],
   };
@@ -717,6 +706,225 @@ async function seed() {
       data: homePageData as any,
     });
     console.log('Home page updated/synchronized with default blocks!');
+  }
+
+  // 9. Seed the former hardcoded tab sections as real Pages documents
+  console.log('Seeding About / Sustainability / Innovation / Contact pages...');
+
+  const OTHER_PAGES: Array<{ title: string; slug: string; seo: { metaTitle: string; metaDescription: string }; layout: any[] }> = [
+    {
+      title: 'Về GAMA',
+      slug: 'about',
+      seo: {
+        metaTitle: 'Về GAMA | GAMA GROUP CO., LTD',
+        metaDescription: 'Khởi nguồn từ năm 1994, GAMA kiến tạo giải pháp sơn phủ, thiết bị vệ sinh và phụ kiện cao cấp cho mọi mái ấm Việt.',
+      },
+      layout: [
+        {
+          blockType: 'hero',
+          title: 'Gốc rễ Việt,\ntiêu chuẩn vươn xa toàn cầu.',
+          subtitle: 'Về GAMA GROUP CO., LTD',
+          description: 'Khởi nguồn từ trí tuệ và khát vọng của người Việt Nam, GAMA kiến tạo nên những sản phẩm sơn phủ, thiết bị vệ sinh và phụ kiện chất lượng vượt tầm quốc tế.',
+          ctaPrimaryLabel: 'Khám phá năng lực',
+          ctaSecondaryLabel: 'Liên hệ hợp tác',
+        },
+        {
+          blockType: 'feature-grid',
+          subtitle: 'LĨNH VỰC HOẠT ĐỘNG',
+          title: 'Ba trụ cột kinh doanh cốt lõi',
+          columns: '3',
+          items: [
+            { iconName: 'Paintbrush', title: 'Sơn & Chất phủ', description: 'Nghiên cứu và sản xuất sơn nước trang trí, chống thấm kiến trúc và công nghiệp cao cấp.' },
+            { iconName: 'ShieldCheck', title: 'Thiết bị vệ sinh', description: 'Phân phối thiết bị vệ sinh và phòng tắm cao cấp đạt chuẩn quốc tế.' },
+            { iconName: 'Sparkles', title: 'Phụ kiện & Gương thông minh', description: 'Gương LED thông minh và phụ kiện inox 304 cho không gian sống hiện đại.' },
+          ],
+        },
+        {
+          blockType: 'timeline',
+          title: 'Hành trình phát triển',
+          description: 'Từ những ngày đầu thành lập đến vị thế dẫn đầu ngành vật liệu phủ hiện nay.',
+          entries: [
+            { year: '1994', title: 'Thành lập GAMA', description: 'Khởi đầu hành trình sản xuất sơn nước tại Việt Nam với khát vọng nâng tầm vật liệu phủ nội địa.' },
+            { year: '2008', title: 'Mở rộng dây chuyền sản xuất', description: 'Đầu tư nhà máy sản xuất tự động hóa khép kín, mở rộng danh mục sản phẩm sang thiết bị vệ sinh.' },
+            { year: '2016', title: 'Đạt chuẩn ISO 9001', description: 'Chính thức đạt chứng nhận ISO 9001:2015, khẳng định hệ thống quản lý chất lượng toàn diện.' },
+            { year: '2021', title: 'Ra mắt phụ kiện & gương thông minh', description: 'Mở rộng hệ sinh thái sản phẩm với dòng gương LED thông minh và phụ kiện inox 304 cao cấp.' },
+          ],
+        },
+        {
+          blockType: 'certifications',
+          subtitle: 'NĂNG LỰC & CHỨNG CHỈ',
+          title: 'Tiêu chuẩn chất lượng được kiểm chứng',
+          items: [
+            {
+              certId: 'qcvn',
+              name: 'QCVN 16 Bộ Xây dựng',
+              issuer: 'Bộ Xây dựng Việt Nam',
+              summary: 'Sản phẩm sơn và vật liệu phủ đạt Quy chuẩn kỹ thuật quốc gia QCVN 16:2023/BXD.',
+              highlights: [{ text: 'Kiểm định định kỳ tại phòng thí nghiệm đạt chuẩn' }, { text: 'Đáp ứng đầy đủ chỉ tiêu cơ lý và hàm lượng VOC' }],
+            },
+            {
+              certId: 'iso',
+              name: 'ISO 9001:2015',
+              issuer: 'Tổ chức chứng nhận quốc tế',
+              summary: 'Hệ thống quản lý chất lượng toàn diện được kiểm định và tái chứng nhận định kỳ hàng năm.',
+              highlights: [{ text: 'Quy trình sản xuất khép kín, truy xuất nguồn gốc' }, { text: 'Đánh giá nội bộ và bên ngoài định kỳ' }],
+            },
+          ],
+        },
+        {
+          blockType: 'team',
+          title: 'Ban điều hành',
+          members: [
+            { name: 'Nguyễn Văn An', role: 'Tổng Giám đốc', credentials: 'Thạc sĩ Hóa học Polyme', description: 'Hơn 20 năm kinh nghiệm trong ngành sản xuất vật liệu phủ.' },
+            { name: 'Trần Thị Bích', role: 'Giám đốc Nghiên cứu & Phát triển', credentials: 'Tiến sĩ Hóa học', description: 'Dẫn dắt đội ngũ R&D nghiên cứu công nghệ polymer thế hệ mới.' },
+            { name: 'Nguyễn Thị Kim Tiền', role: 'Giám đốc Nhân sự & Tuyển dụng', description: 'Xây dựng văn hóa doanh nghiệp và chiến lược phát triển nhân tài.' },
+          ],
+        },
+        {
+          blockType: 'cta-banner',
+          headline: 'Cùng GAMA kiến tạo\nnhững công trình bền vững.',
+          subtext: 'Tìm hiểu thêm về cơ hội hợp tác, phân phối và đầu tư cùng GAMA GROUP CO., LTD.',
+          buttonLabel: 'Liên hệ hợp tác',
+          buttonPath: 'contact',
+        },
+      ],
+    },
+    {
+      title: 'Phát triển bền vững',
+      slug: 'sustainability',
+      seo: {
+        metaTitle: 'Phát triển bền vững | GAMA.vn',
+        metaDescription: 'Cam kết của GAMA trong việc bảo vệ khí hậu, phát triển sản phẩm xanh và xây dựng nền kinh tế tuần hoàn.',
+      },
+      layout: [
+        {
+          blockType: 'hero',
+          title: 'Kiến tạo tương lai xanh,\ntrách nhiệm với từng giọt sơn.',
+          subtitle: 'Phát triển bền vững tại GAMA',
+          description: 'Mọi hoạt động sản xuất kinh doanh của GAMA đều đặt bảo vệ môi trường làm kim chỉ nam, hướng tới trung hòa Carbon vào năm 2050.',
+          ctaPrimaryLabel: 'Xem cam kết môi trường',
+          ctaSecondaryLabel: 'Liên hệ hợp tác xanh',
+        },
+        {
+          blockType: 'tabbed-panel',
+          subtitle: 'BA TRỤ CỘT BỀN VỮNG',
+          tabs: [
+            {
+              label: 'Bảo vệ khí hậu',
+              badge: 'CLIMATE ACTION',
+              summary: 'Cắt giảm 50% lượng phát thải khí nhà kính vào năm 2030 và hướng tới trung hòa Carbon hoàn toàn vào năm 2050.',
+              metrics: [{ value: '-50%', label: 'Phát thải CO2 (2030)' }, { value: '100%', label: 'Trung hòa Carbon (2050)' }],
+            },
+            {
+              label: 'Sản phẩm xanh',
+              badge: 'GREEN PRODUCTS',
+              summary: 'Nghiên cứu và phát triển các dòng sơn sinh học, hàm lượng VOC gần như bằng không, an toàn cho sức khỏe người sử dụng.',
+              metrics: [{ value: '0%', label: 'VOC độc hại' }, { value: 'LEED', label: 'Chứng nhận xanh' }],
+            },
+            {
+              label: 'Kinh tế tuần hoàn',
+              badge: 'CIRCULAR ECONOMY',
+              summary: 'Tối ưu hóa bao bì có khả năng tái chế, giảm thiểu chất thải trong toàn bộ chuỗi sản xuất và phân phối.',
+              metrics: [{ value: '45%', label: 'Bao bì tái chế' }],
+            },
+          ],
+        },
+        {
+          blockType: 'stat-highlights',
+          title: 'GAMA VÌ MỘT HÀNH TINH XANH HƠN',
+          items: [
+            { value: '0', label: 'Sự cố môi trường nghiêm trọng' },
+            { value: '-50%', label: 'Mục tiêu phát thải 2030' },
+            { value: '45%', label: 'Vật liệu tái chế' },
+            { value: '100%', label: 'Cam kết trung hòa Carbon' },
+          ],
+        },
+        {
+          blockType: 'quote',
+          quote: 'Chúng tôi đặt tiêu chí sức khỏe và môi trường lên hàng đầu trong mọi công thức sản phẩm GAMA.',
+          author: 'Trần Hoàng Bách',
+          role: 'Giám đốc Phát triển Bền vững',
+        },
+      ],
+    },
+    {
+      title: 'Sáng tạo & Đột phá',
+      slug: 'innovation',
+      seo: {
+        metaTitle: 'Sáng tạo & Đột phá | GAMA.vn',
+        metaDescription: 'Khám phá các công nghệ đột phá của GAMA: Cool-Shield, Pure-Shield và Easy-Wash — nền tảng khoa học vật liệu tiên tiến.',
+      },
+      layout: [
+        {
+          blockType: 'hero',
+          title: 'Khoa học vật liệu\nkiến tạo trải nghiệm sống mới.',
+          subtitle: 'Sáng tạo & Đột phá công nghệ',
+          description: 'Đội ngũ R&D của GAMA không ngừng nghiên cứu những công nghệ polymer, nano và sinh học tiên tiến nhất để nâng tầm chất lượng sống.',
+          ctaPrimaryLabel: 'Khám phá công nghệ',
+          ctaSecondaryLabel: 'Liên hệ tư vấn kỹ thuật',
+        },
+        {
+          blockType: 'tabbed-panel',
+          subtitle: 'CÔNG NGHỆ ĐỘT PHÁ',
+          tabs: [
+            {
+              label: 'Cool-Shield',
+              badge: 'CÔNG NGHỆ PHẢN XẠ NHIỆT',
+              summary: 'Lớp phủ phản xạ tia hồng ngoại tiên tiến giúp giảm nhiệt độ bề mặt tường, tiết kiệm năng lượng làm mát.',
+              metrics: [{ value: '-5°C', label: 'Giảm nhiệt bề mặt' }, { value: '30%', label: 'Tiết kiệm điện năng' }],
+            },
+            {
+              label: 'Pure-Shield',
+              badge: 'CÔNG NGHỆ KHÁNG KHUẨN',
+              summary: 'Công nghệ ion bạc kháng khuẩn tích hợp trong màng sơn, ức chế vi khuẩn và nấm mốc trên bề mặt tường.',
+              metrics: [{ value: '99.9%', label: 'Kháng khuẩn bề mặt' }],
+            },
+            {
+              label: 'Easy-Wash',
+              badge: 'CÔNG NGHỆ DỄ LAU CHÙI',
+              summary: 'Bề mặt màng sơn siêu mịn giúp hạn chế bám bụi, dễ dàng lau chùi mà không ảnh hưởng đến độ bền màu.',
+              metrics: [{ value: '10.000+', label: 'Lượt chà rửa không phai màu' }],
+            },
+          ],
+        },
+        {
+          blockType: 'stat-highlights',
+          title: 'PHÒNG THÍ NGHIỆM MÔ PHỎNG GAMA',
+          items: [
+            { value: '10.000+', label: 'Giờ thử nghiệm giả lập thời tiết' },
+            { value: '0.2', label: 'Delta-E sai lệch màu tối đa' },
+            { value: '15+', label: 'Bằng sáng chế công nghệ' },
+          ],
+        },
+      ],
+    },
+    {
+      title: 'Liên hệ',
+      slug: 'contact',
+      seo: {
+        metaTitle: 'Liên hệ | GAMA.vn',
+        metaDescription: 'Kết nối với GAMA GROUP CO., LTD — văn phòng, showroom và các kênh liên lạc chuyên trách.',
+      },
+      layout: [
+        { blockType: 'contact-form' },
+      ],
+    },
+  ];
+
+  for (const pageData of OTHER_PAGES) {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { slug: { equals: pageData.slug } },
+      limit: 1,
+    });
+
+    if (existing.totalDocs === 0) {
+      await payload.create({ collection: 'pages', data: pageData as any });
+      console.log(`Seeded page: ${pageData.slug}`);
+    } else {
+      await payload.update({ collection: 'pages', id: existing.docs[0].id, data: pageData as any });
+      console.log(`Updated page: ${pageData.slug}`);
+    }
   }
 
   console.log('Database seeding completed successfully!');

@@ -58,7 +58,7 @@ export const Footer: GlobalConfig = {
       type: 'array',
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'tabId', type: 'text', required: true },
+        { name: 'path', label: 'URL Path', type: 'text', required: true },
       ],
     },
     {

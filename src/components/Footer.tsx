@@ -1,31 +1,32 @@
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Mail, Phone, MapPin, Check, Linkedin, Facebook, Instagram, Twitter, ShieldCheck, Star } from 'lucide-react';
 import GamaLogo from './GamaLogo';
 import type { FooterGlobal } from '../lib/payloadApi';
 
 interface FooterProps {
-  setActiveTab: (tab: string) => void;
   footerData?: FooterGlobal | null;
 }
 
+/** Normalizes a Payload-editable `path` field ("", "home", "about", "chinh-sach/privacy") into a real href. */
+function toHref(path: string): string {
+  if (!path || path === 'home') return '/';
+  return `/${path.replace(/^\/+/, '')}`;
+}
+
 const DEFAULT_FOOTER_LINKS = [
-  { label: 'Về GAMA', tabId: 'about' },
-  { label: 'Phát triển bền vững', tabId: 'sustainability' },
-  { label: 'Sáng tạo & Đột phá', tabId: 'innovation' },
-  { label: 'Tin tức', tabId: 'blog' },
-  { label: 'Tuyển dụng', tabId: 'careers' },
-  { label: 'Liên hệ', tabId: 'contact' },
+  { label: 'Về GAMA', path: 'about' },
+  { label: 'Phát triển bền vững', path: 'sustainability' },
+  { label: 'Sáng tạo & Đột phá', path: 'innovation' },
+  { label: 'Tin tức', path: 'blog' },
+  { label: 'Tuyển dụng', path: 'careers' },
+  { label: 'Liên hệ', path: 'contact' },
 ];
 
-export default function Footer({ setActiveTab, footerData }: FooterProps) {
+export default function Footer({ footerData }: FooterProps) {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleNavClick = (tabId: string) => {
-    setActiveTab(tabId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,9 +81,9 @@ export default function Footer({ setActiveTab, footerData }: FooterProps) {
          {/* Column 1: Brand & Logo */}
         <div className="lg:col-span-4 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <div className="cursor-pointer active:scale-95 transition-transform" onClick={() => handleNavClick('home')}>
+            <Link href="/" className="cursor-pointer active:scale-95 transition-transform inline-block">
               <GamaLogo light />
-            </div>
+            </Link>
             <span className="text-sm font-semibold tracking-wider text-white font-sans mt-2">GAMA GROUP CO., LTD</span>
           </div>
 
@@ -123,14 +124,14 @@ export default function Footer({ setActiveTab, footerData }: FooterProps) {
           </h4>
           <nav className="flex flex-col gap-3 text-xs text-slate-200 font-sans font-light">
             {footerLinks.map((link) => (
-              <button
-                key={link.tabId}
-                onClick={() => handleNavClick(link.tabId)}
+              <Link
+                key={link.path}
+                href={toHref(link.path)}
                 className="hover:text-[#B48F57] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left flex items-center gap-1.5 group"
               >
                 <span className="w-1.5 h-[1px] bg-[#B48F57] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
                 {link.label}
-              </button>
+              </Link>
             ))}
           </nav>
         </div>
@@ -188,9 +189,9 @@ export default function Footer({ setActiveTab, footerData }: FooterProps) {
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-xs font-sans font-light">
           <span className="text-slate-300">{copyright}</span>
           <span className="hidden sm:inline text-slate-500">•</span>
-          <button onClick={() => handleNavClick('policy-privacy')} className="text-slate-300 hover:text-[#B48F57] transition-colors cursor-pointer">
+          <Link href="/chinh-sach/privacy" className="text-slate-300 hover:text-[#B48F57] transition-colors cursor-pointer">
             Chính sách bảo mật
-          </button>
+          </Link>
         </div>
 
         {/* Social Icons */}

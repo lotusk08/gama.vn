@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, CheckCircle, Send, Globe, Star, Award, BookOpen, Shield, Users, MessageSquare, Handshake } from 'lucide-react';
 import { OfficeLocation } from '../types';
+import { submitContactMessage } from '../lib/payload';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
@@ -64,10 +65,11 @@ export default function ContactSection() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitted(true);
+      await submitContactMessage(formData.name, formData.email, formData.phone, formData.subject, formData.message);
     }
   };
 

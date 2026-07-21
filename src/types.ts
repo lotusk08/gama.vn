@@ -28,6 +28,7 @@ export interface Testimonial {
 
 export interface BlogPost {
   id: string;
+  slug: string;
   title: string;
   excerpt: string;
   content: string;
@@ -56,6 +57,7 @@ export interface ProcessStep {
 
 export interface JobOpening {
   id: string;
+  slug: string;
   title: string;
   department: string;
   location: string;

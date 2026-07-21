@@ -18,9 +18,9 @@ async function checkMedia() {
     console.log(`  Alt: ${doc.alt}`);
     console.log(`  Filename: ${doc.filename}`);
     console.log(`  URL: ${doc.url}`);
-    if (doc.sizes) {
+    if ((doc as any).sizes) {
       console.log('  Sizes:');
-      for (const [sizeName, sizeData] of Object.entries(doc.sizes)) {
+      for (const [sizeName, sizeData] of Object.entries((doc as any).sizes)) {
         console.log(`    * ${sizeName}: ${(sizeData as any).url || 'N/A'}`);
       }
     }

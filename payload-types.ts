@@ -166,6 +166,10 @@ export interface User {
 export interface Post {
   id: string;
   title: string;
+  /**
+   * URL segment for this item. Auto-generated from the title if left blank.
+   */
+  slug?: string | null;
   excerpt: string;
   featuredImage?: (string | null) | Media;
   content: {
@@ -221,6 +225,10 @@ export interface Media {
 export interface Career {
   id: string;
   title: string;
+  /**
+   * URL segment for this item. Auto-generated from the title if left blank.
+   */
+  slug?: string | null;
   department: string;
   location: string;
   type: 'Toàn thời gian' | 'Bán thời gian' | 'Thực tập' | 'Hợp đồng';
@@ -246,10 +254,14 @@ export interface Career {
  */
 export interface Submission {
   id: string;
-  jobId: string;
-  jobTitle: string;
+  type: 'contact' | 'job-application';
+  jobId?: string | null;
+  jobTitle?: string | null;
   name: string;
   email: string;
+  phone?: string | null;
+  subject?: string | null;
+  message?: string | null;
   cvUrl?: string | null;
   submittedAt?: string | null;
   updatedAt: string;
@@ -280,6 +292,13 @@ export interface Policy {
     };
     [k: string]: unknown;
   };
+  seo?: {
+    /**
+     * Falls back to the page title when empty.
+     */
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -291,9 +310,17 @@ export interface Page {
   id: string;
   title: string;
   /**
-   * Used to fetch this page. Use "home" for the main page.
+   * The page's URL path, editable at any time. Use "home" for the main page ("/"); any other value becomes the route, e.g. "about" → /about, "chinh-sach/quyen-rieng-tu" → /chinh-sach/quyen-rieng-tu.
    */
   slug: string;
+  seo?: {
+    /**
+     * Falls back to the page title when empty.
+     */
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    ogImage?: (string | null) | Media;
+  };
   layout: (
     | {
         title: string;
@@ -406,7 +433,47 @@ export interface Page {
               title: string;
               description?: string | null;
               quote?: string | null;
-              iconName?: ('ShieldCheck' | 'Paintbrush' | 'Palette' | 'Globe') | null;
+              iconName?:
+                | (
+                    | 'ShieldCheck'
+                    | 'Paintbrush'
+                    | 'Palette'
+                    | 'Globe'
+                    | 'Leaf'
+                    | 'Recycle'
+                    | 'Flame'
+                    | 'Award'
+                    | 'Compass'
+                    | 'Cpu'
+                    | 'FlaskConical'
+                    | 'Sun'
+                    | 'Shield'
+                    | 'Sparkles'
+                    | 'Users'
+                    | 'Handshake'
+                    | 'MapPin'
+                    | 'Mail'
+                    | 'Phone'
+                    | 'CheckCircle2'
+                    | 'Star'
+                    | 'BookOpen'
+                    | 'MessageSquare'
+                    | 'Target'
+                    | 'Layers'
+                    | 'Eye'
+                    | 'HardHat'
+                    | 'Droplets'
+                    | 'Truck'
+                    | 'ClipboardCheck'
+                    | 'RefreshCw'
+                    | 'Search'
+                    | 'FileText'
+                    | 'ArrowUpRight'
+                    | 'HelpCircle'
+                    | 'ChevronRight'
+                    | 'ShieldAlert'
+                  )
+                | null;
               id?: string | null;
             }[]
           | null;
@@ -418,7 +485,10 @@ export interface Page {
         headline: string;
         subtext?: string | null;
         buttonLabel?: string | null;
-        buttonTab?: string | null;
+        /**
+         * Relative URL path the button links to, e.g. "contact" or "" for home.
+         */
+        buttonPath?: string | null;
         id?: string | null;
         blockName?: string | null;
         blockType: 'cta-banner';
@@ -442,6 +512,211 @@ export interface Page {
         id?: string | null;
         blockName?: string | null;
         blockType: 'rich-text';
+      }
+    | {
+        title?: string | null;
+        subtitle?: string | null;
+        tabs: {
+          label: string;
+          badge?: string | null;
+          summary?: string | null;
+          metrics?:
+            | {
+                value: string;
+                label: string;
+                id?: string | null;
+              }[]
+            | null;
+          richContent?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          image?: (string | null) | Media;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'tabbed-panel';
+      }
+    | {
+        title?: string | null;
+        description?: string | null;
+        entries: {
+          year: string;
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'timeline';
+      }
+    | {
+        title?: string | null;
+        subtitle?: string | null;
+        columns?: ('2' | '3' | '4') | null;
+        items: {
+          iconName?:
+            | (
+                | 'ShieldCheck'
+                | 'Paintbrush'
+                | 'Palette'
+                | 'Globe'
+                | 'Leaf'
+                | 'Recycle'
+                | 'Flame'
+                | 'Award'
+                | 'Compass'
+                | 'Cpu'
+                | 'FlaskConical'
+                | 'Sun'
+                | 'Shield'
+                | 'Sparkles'
+                | 'Users'
+                | 'Handshake'
+                | 'MapPin'
+                | 'Mail'
+                | 'Phone'
+                | 'CheckCircle2'
+                | 'Star'
+                | 'BookOpen'
+                | 'MessageSquare'
+                | 'Target'
+                | 'Layers'
+                | 'Eye'
+                | 'HardHat'
+                | 'Droplets'
+                | 'Truck'
+                | 'ClipboardCheck'
+                | 'RefreshCw'
+                | 'Search'
+                | 'FileText'
+                | 'ArrowUpRight'
+                | 'HelpCircle'
+                | 'ChevronRight'
+                | 'ShieldAlert'
+              )
+            | null;
+          title: string;
+          description?: string | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'feature-grid';
+      }
+    | {
+        title?: string | null;
+        items: {
+          value: string;
+          label: string;
+          description?: string | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'stat-highlights';
+      }
+    | {
+        quote: string;
+        author: string;
+        role?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'quote';
+      }
+    | {
+        title?: string | null;
+        members: {
+          name: string;
+          role: string;
+          credentials?: string | null;
+          description?: string | null;
+          photo?: (string | null) | Media;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'team';
+      }
+    | {
+        title?: string | null;
+        subtitle?: string | null;
+        items: {
+          certId: string;
+          name: string;
+          issuer?: string | null;
+          summary?: string | null;
+          highlights?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+          details?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          approvedProducts?:
+            | {
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[];
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'certifications';
+      }
+    | {
+        title?: string | null;
+        offices?:
+          | {
+              name: string;
+              address: string;
+              phone?: string | null;
+              mapUrl?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        emailDirectory?:
+          | {
+              label: string;
+              email: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'contact-info';
+      }
+    | {
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'contact-form';
       }
   )[];
   updatedAt: string;
@@ -570,6 +845,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
   excerpt?: T;
   featuredImage?: T;
   content?: T;
@@ -591,6 +867,7 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface CareersSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
   department?: T;
   location?: T;
   type?: T;
@@ -615,10 +892,14 @@ export interface CareersSelect<T extends boolean = true> {
  * via the `definition` "submissions_select".
  */
 export interface SubmissionsSelect<T extends boolean = true> {
+  type?: T;
   jobId?: T;
   jobTitle?: T;
   name?: T;
   email?: T;
+  phone?: T;
+  subject?: T;
+  message?: T;
   cvUrl?: T;
   submittedAt?: T;
   updatedAt?: T;
@@ -634,6 +915,12 @@ export interface PoliciesSelect<T extends boolean = true> {
   subTitle?: T;
   introduction?: T;
   content?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -664,6 +951,13 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  seo?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        ogImage?: T;
+      };
   layout?:
     | T
     | {
@@ -785,7 +1079,7 @@ export interface PagesSelect<T extends boolean = true> {
               headline?: T;
               subtext?: T;
               buttonLabel?: T;
-              buttonTab?: T;
+              buttonPath?: T;
               id?: T;
               blockName?: T;
             };
@@ -793,6 +1087,164 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        'tabbed-panel'?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              tabs?:
+                | T
+                | {
+                    label?: T;
+                    badge?: T;
+                    summary?: T;
+                    metrics?:
+                      | T
+                      | {
+                          value?: T;
+                          label?: T;
+                          id?: T;
+                        };
+                    richContent?: T;
+                    image?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        timeline?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              entries?:
+                | T
+                | {
+                    year?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'feature-grid'?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              columns?: T;
+              items?:
+                | T
+                | {
+                    iconName?: T;
+                    title?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'stat-highlights'?:
+          | T
+          | {
+              title?: T;
+              items?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    description?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        quote?:
+          | T
+          | {
+              quote?: T;
+              author?: T;
+              role?: T;
+              id?: T;
+              blockName?: T;
+            };
+        team?:
+          | T
+          | {
+              title?: T;
+              members?:
+                | T
+                | {
+                    name?: T;
+                    role?: T;
+                    credentials?: T;
+                    description?: T;
+                    photo?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        certifications?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              items?:
+                | T
+                | {
+                    certId?: T;
+                    name?: T;
+                    issuer?: T;
+                    summary?: T;
+                    highlights?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    details?: T;
+                    approvedProducts?:
+                      | T
+                      | {
+                          text?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'contact-info'?:
+          | T
+          | {
+              title?: T;
+              offices?:
+                | T
+                | {
+                    name?: T;
+                    address?: T;
+                    phone?: T;
+                    mapUrl?: T;
+                    id?: T;
+                  };
+              emailDirectory?:
+                | T
+                | {
+                    label?: T;
+                    email?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        'contact-form'?:
+          | T
+          | {
               id?: T;
               blockName?: T;
             };
@@ -851,12 +1303,15 @@ export interface Header {
   logo?: (string | null) | Media;
   navItems: {
     label: string;
-    tabId: string;
+    /**
+     * Relative URL path this link points to, e.g. "about" or "" for home.
+     */
+    path: string;
     hasSubMenu?: boolean | null;
     subMenuItems?:
       | {
           label: string;
-          tabId: string;
+          path: string;
           id?: string | null;
         }[]
       | null;
@@ -870,7 +1325,7 @@ export interface Header {
   topBarLinks?:
     | {
         label: string;
-        tabId: string;
+        path: string;
         id?: string | null;
       }[]
     | null;
@@ -899,7 +1354,7 @@ export interface Footer {
   footerLinks?:
     | {
         label: string;
-        tabId: string;
+        path: string;
         id?: string | null;
       }[]
     | null;
@@ -925,13 +1380,13 @@ export interface HeaderSelect<T extends boolean = true> {
     | T
     | {
         label?: T;
-        tabId?: T;
+        path?: T;
         hasSubMenu?: T;
         subMenuItems?:
           | T
           | {
               label?: T;
-              tabId?: T;
+              path?: T;
               id?: T;
             };
         id?: T;
@@ -947,7 +1402,7 @@ export interface HeaderSelect<T extends boolean = true> {
     | T
     | {
         label?: T;
-        tabId?: T;
+        path?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -978,7 +1433,7 @@ export interface FooterSelect<T extends boolean = true> {
     | T
     | {
         label?: T;
-        tabId?: T;
+        path?: T;
         id?: T;
       };
   certifications?:

@@ -173,6 +173,7 @@ function transformPayloadDoc(doc: any): BlogPost {
 
   return {
     id: doc.id || String(doc._id || Math.random()),
+    slug: doc.slug || String(doc.id || doc._id),
     title: doc.title || 'Untitled Post',
     excerpt: doc.excerpt || doc.meta?.description || 'No excerpt available.',
     content: contentHtml || '<p style="color:#999;">Nội dung chưa được cập nhật.</p>',
@@ -253,49 +254,6 @@ export async function fetchBlogPosts(): Promise<{ posts: BlogPost[]; source: 'Pa
   }
 }
 
-/**
- * Creates a new blog post via the Payload CMS REST API.
- */
-export async function createBlogPost(postData: Omit<BlogPost, 'id' | 'date'>): Promise<{ post: BlogPost; source: 'Payload CMS' | 'Local Demo Mode' }> {
-  const baseUrl = getApiBaseUrl();
-  const newPost: BlogPost = {
-    ...postData,
-    id: `post-${Date.now()}`,
-    date: new Date().toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })
-  };
-
-  try {
-    const response = await fetch(`${baseUrl}/api/posts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        title: postData.title,
-        excerpt: postData.excerpt,
-        content: postData.content,
-        category: postData.category,
-        readTime: postData.readTime,
-        author: postData.author
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return { post: transformPayloadDoc(data.doc || data), source: 'Payload CMS' };
-    }
-    throw new Error(`POST failed with status ${response.status}`);
-  } catch (err) {
-    console.warn('Payload CMS POST request failed:', err);
-    return { post: newPost, source: 'Local Demo Mode' };
-  }
-}
-
-/** Clears any locally cached post overrides. */
-export function resetLocalPosts(): void {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem('gama_local_posts');
-  }
-}
-
 // ==========================================
 // Careers Integration
 // ==========================================
@@ -314,6 +272,7 @@ function transformPayloadJob(doc: any): JobOpening {
 
   return {
     id: doc.id || String(doc._id || Math.random()),
+    slug: doc.slug || String(doc.id || doc._id),
     title: doc.title || 'Untitled Position',
     department: doc.department || 'General',
     location: doc.location || 'GAMA Office',
@@ -382,10 +341,27 @@ export async function submitJobApplication(
   return { success: false, source: 'Local Demo Mode' };
 }
 
-/** Clears any locally cached career/application overrides. */
-export function resetLocalCareers(): void {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem('gama_local_careers');
-    localStorage.removeItem('gama_local_applications');
+/** Submits a general contact-form message via the shared `submissions` collection. */
+export async function submitContactMessage(
+  name: string,
+  email: string,
+  phone: string,
+  subject: string,
+  message: string
+): Promise<{ success: boolean; source: 'Payload CMS' | 'Local Demo Mode' }> {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const response = await fetch(`${baseUrl}/api/submissions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ type: 'contact', name, email, phone, subject, message })
+    });
+    if (response.ok) {
+      return { success: true, source: 'Payload CMS' };
+    }
+    console.warn(`Payload CMS contact submission POST failed with status ${response.status}`);
+  } catch (err) {
+    console.warn('Payload CMS contact submission POST failed:', err);
   }
+  return { success: false, source: 'Local Demo Mode' };
 }

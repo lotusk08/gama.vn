@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import React from 'react';
+import Link from 'next/link';
 import {
   Users,
   ShieldCheck,
@@ -17,14 +17,13 @@ import {
   AlertTriangle,
   Heart
 } from 'lucide-react';
-
-import { PAYLOAD_CMS_URL } from '../lib/payload';
+import type { PolicyDoc } from '../lib/payloadApi';
 
 export type PolicyKey = 'suppliers' | 'privacy' | 'position' | 'conduct' | 'speakup' | 'accessibility';
 
 interface CorporatePoliciesProps {
   activePolicy: PolicyKey;
-  onChangePolicy: (policy: PolicyKey) => void;
+  currentPolicy: PolicyDoc | null;
 }
 
 function renderLexicalNode(node: any, policyKey: string, headingIndexRef: { current: number }) {
@@ -136,28 +135,7 @@ function renderLexicalNode(node: any, policyKey: string, headingIndexRef: { curr
   return null;
 }
 
-export default function CorporatePolicies({ activePolicy, onChangePolicy }: CorporatePoliciesProps) {
-  const [policies, setPolicies] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPolicies() {
-      try {
-        const baseUrl = PAYLOAD_CMS_URL.replace(/\/$/, '');
-        const res = await fetch(`${baseUrl}/api/policies?limit=100&t=${Date.now()}`);
-        const data = await res.json();
-        if (data && data.docs) {
-          setPolicies(data.docs);
-        }
-      } catch (err) {
-        console.error('Error fetching policies:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPolicies();
-  }, []);
-
+export default function CorporatePolicies({ activePolicy, currentPolicy }: CorporatePoliciesProps) {
   const menuItems = [
     { id: 'suppliers', label: 'Đối tác cung ứng', icon: Users, desc: 'Supplier Code of Conduct & Sustainability' },
     { id: 'privacy', label: 'Tuyên bố quyền riêng tư', icon: ShieldCheck, desc: 'Privacy & Data Protection Statement' },
@@ -166,21 +144,6 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
     { id: 'speakup', label: 'Thông báo SpeakUp!', icon: ShieldAlert, desc: 'SpeakUp! Notice & Compliance' },
     { id: 'accessibility', label: 'Cam kết tiếp cận', icon: Award, desc: 'Digital Accessibility Statement' },
   ] as const;
-
-  if (loading) {
-    return (
-      <div className="bg-slate-50 min-h-screen pt-36 pb-24 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#0A4E35]/20 border-t-[#0A4E35] animate-spin" />
-          <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
-            Đang tải dữ liệu chính sách...
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  const currentPolicy = policies.find(p => p.key === activePolicy);
 
   // Determine title icon component and styling classes
   let HeaderIcon = Users;
@@ -236,9 +199,9 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
               const IconComp = item.icon;
               const isActive = activePolicy === item.id;
               return (
-                <button
+                <Link
                   key={item.id}
-                  onClick={() => onChangePolicy(item.id)}
+                  href={`/chinh-sach/${item.id}`}
                   className={`w-full text-left p-4 rounded-2xl flex items-start gap-4 transition-all duration-300 group cursor-pointer ${isActive
                       ? 'bg-[#0A4E35] text-white shadow-md shadow-[#0a4e35]/10'
                       : 'hover:bg-slate-100 text-slate-700'
@@ -259,7 +222,7 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
                   </div>
                   <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1 transition-transform self-center ${isActive ? 'text-[#B48F57] translate-x-0.5' : 'text-slate-300 group-hover:translate-x-0.5'
                     }`} />
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -323,8 +286,8 @@ export default function CorporatePolicies({ activePolicy, onChangePolicy }: Corp
                   </p>
 
                   {/* Render content richText from Lexical node tree */}
-                  {currentPolicy.content?.root?.children && (
-                    currentPolicy.content.root.children.map((childNode: any, nodeIdx: number) => (
+                  {(currentPolicy.content as any)?.root?.children && (
+                    (currentPolicy.content as any).root.children.map((childNode: any, nodeIdx: number) => (
                       <React.Fragment key={nodeIdx}>
                         {renderLexicalNode(childNode, activePolicy, { current: 0 })}
                       </React.Fragment>

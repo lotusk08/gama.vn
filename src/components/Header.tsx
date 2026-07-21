@@ -1,29 +1,29 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import GamaLogo from './GamaLogo';
 import GamaLogoIcon from './GamaLogoIcon';
 import type { HeaderGlobal } from '../lib/payloadApi';
 
 interface HeaderProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   headerData?: HeaderGlobal | null;
 }
 
+/** Normalizes a Payload-editable `path` field ("", "home", "about", "chinh-sach/privacy") into a real href. */
+function toHref(path: string): string {
+  if (!path || path === 'home') return '/';
+  return `/${path.replace(/^\/+/, '')}`;
+}
+
 const DEFAULT_NAV_ITEMS = [
-  { 
-    id: 'about', 
+  {
+    id: 'about',
     label: 'Về GAMA',
-    hasSubMenu: true,
-    subMenuItems: [
-      { label: 'Lịch sử', tabId: 'about-history' },
-      { label: 'Thương hiệu', tabId: 'about-brands' },
-      { label: 'Lời hứa từ sứ mệnh', tabId: 'about-creed' },
-      { label: 'Công ty thành viên', tabId: 'about-subsidiaries' },
-      { label: 'Năng lực & chứng chỉ', tabId: 'about-certificates' },
-    ]
+    hasSubMenu: false,
+    subMenuItems: [] as { label: string; path: string }[],
   },
   { id: 'sustainability', label: 'Phát triển bền vững' },
   { id: 'innovation', label: 'Sáng tạo & Đột phá' },
@@ -38,11 +38,13 @@ const DEFAULT_TOP_BAR = {
 };
 
 const DEFAULT_TOP_BAR_LINKS = [
-  { label: 'Báo Cáo Thường Niên 2026', tabId: 'about' },
-  { label: 'Yêu cầu báo giá dự án', tabId: 'contact' },
+  { label: 'Báo Cáo Thường Niên 2026', path: 'about' },
+  { label: 'Yêu cầu báo giá dự án', path: 'contact' },
 ];
 
-export default function Header({ activeTab, setActiveTab, headerData }: HeaderProps) {
+export default function Header({ headerData }: HeaderProps) {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -58,13 +60,13 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
   // Resolve nav items — prefer CMS, fall back to defaults
   const navItems =
     headerData?.navItems && headerData.navItems.length > 0
-      ? headerData.navItems.map((item) => ({ 
-          id: item.tabId, 
+      ? headerData.navItems.map((item) => ({
+          path: item.path,
           label: item.label,
           hasSubMenu: item.hasSubMenu,
           subMenuItems: item.subMenuItems
         }))
-      : DEFAULT_NAV_ITEMS;
+      : DEFAULT_NAV_ITEMS.map((item) => ({ ...item, path: item.id }));
 
   // Resolve top bar ticker
   const ticker = headerData?.topBarTicker ?? DEFAULT_TOP_BAR;
@@ -81,11 +83,7 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
       ? (headerData.logo as { url?: string | null }).url
       : null;
 
-  const handleNavClick = (tabId: string) => {
-    setActiveTab(tabId);
-    setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <header
@@ -96,7 +94,7 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
       } flex flex-col justify-center`}
     >
       {/* Sleek top utility corporate ticker bar */}
-      {!isScrolled && activeTab === 'home' && (
+      {!isScrolled && isHome && (
         <div className="w-full bg-[#051F16]/95 border-b border-white/5 py-2 px-6 sm:px-12 text-[10px] sm:text-[11px] text-[#B48F57] font-mono flex items-center justify-between">
           <div className="flex items-center gap-4 overflow-hidden whitespace-nowrap">
             <span className="font-bold flex items-center gap-1.5 text-white">
@@ -113,14 +111,14 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
           </div>
           <div className="flex items-center gap-4 text-slate-300 font-sans text-[10px] sm:text-xs">
             {topBarLinks.map((link, idx) => (
-              <React.Fragment key={`${link.tabId}-${idx}`}>
+              <React.Fragment key={`${link.path}-${idx}`}>
                 {idx > 0 && <span className="text-slate-600 hidden md:inline">|</span>}
-                <button
-                  onClick={() => handleNavClick(link.tabId)}
+                <Link
+                  href={toHref(link.path)}
                   className={`hover:text-[#B48F57] transition-colors cursor-pointer ${idx === 0 ? 'hidden md:inline' : ''}`}
                 >
                   {link.label}
-                </button>
+                </Link>
               </React.Fragment>
             ))}
           </div>
@@ -130,26 +128,29 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
       {/* Main Header Row */}
       <div className={`w-full flex items-center justify-between max-w-7xl mx-auto px-6 sm:px-12 transition-all duration-300 ${isScrolled ? 'h-20' : 'h-24'}`}>
         {/* Logo — Inline SVG brand asset (icon only) */}
-        <div className="cursor-pointer active:scale-95 transition-transform" onClick={() => handleNavClick('home')}>
+        <Link href="/" className="cursor-pointer active:scale-95 transition-transform">
           <GamaLogoIcon />
-        </div>
+        </Link>
 
         {/* Desktop Navigation Menu */}
         <nav className="hidden lg:flex items-center gap-10">
-          {navItems.map((item, idx) => (
+          {navItems.map((item, idx) => {
+            const itemHref = toHref(item.path);
+            const isActive = pathname === itemHref || item.subMenuItems?.some((sub: any) => pathname === toHref(sub.path));
+            return (
             <div
-              key={`${item.id}-${idx}`}
+              key={`${item.path}-${idx}`}
               className="relative py-4 group"
-              onMouseEnter={() => setHoveredItem(item.id)}
+              onMouseEnter={() => setHoveredItem(item.path)}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              <button
-                onClick={() => handleNavClick(item.id)}
+              <Link
+                href={itemHref}
                 className="text-[15px] font-sans font-medium transition-all cursor-pointer tracking-tight flex items-center gap-1 focus:outline-none"
               >
                 <span
                   className={`transition-colors duration-200 ${
-                    activeTab === item.id || item.subMenuItems?.some((sub: any) => activeTab === sub.tabId)
+                    isActive
                       ? 'text-[#0A4E35] font-bold'
                       : 'text-[#0A4E35]/75 hover:text-[#0A4E35]'
                   }`}
@@ -158,7 +159,7 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
                 </span>
 
                 {/* Animated underline */}
-                {activeTab === item.id || item.subMenuItems?.some((sub: any) => activeTab === sub.tabId) ? (
+                {isActive ? (
                   <motion.div
                     layoutId="activeHeaderTab"
                     className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B48F57]"
@@ -167,19 +168,19 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
                 ) : (
                   <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#B48F57] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-250" />
                 )}
-              </button>
+              </Link>
 
               {/* Sub-menu Dropdown container */}
               {item.hasSubMenu && item.subMenuItems && item.subMenuItems.length > 0 && (
                 <AnimatePresence>
-                  {hoveredItem === item.id && (
+                  {hoveredItem === item.path && (
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
                       className="absolute left-1/2 -translate-x-1/2 top-[100%] mt-2 bg-white rounded-none shadow-2xl border border-gray-100 overflow-hidden z-50 flex"
-                      style={{ 
+                      style={{
                         minWidth: '250px',
                         clipPath: 'polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%)'
                       }}
@@ -190,22 +191,22 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
                       {/* Left content: Menu list */}
                       <div className="py-4 flex-grow flex flex-col gap-1 z-10 bg-white rounded-none">
                         {item.subMenuItems.map((sub: any, sIdx: number) => (
-                          <button
-                            key={`${sub.tabId}-${sIdx}`}
-                            onClick={() => handleNavClick(sub.tabId)}
-                            className={`w-full text-left py-2.5 pl-6 pr-14 rounded-none text-xs font-sans font-medium transition-colors cursor-pointer ${
-                              activeTab === sub.tabId
+                          <Link
+                            key={`${sub.path}-${sIdx}`}
+                            href={toHref(sub.path)}
+                            className={`w-full text-left py-2.5 pl-6 pr-14 rounded-none text-xs font-sans font-medium transition-colors cursor-pointer block ${
+                              pathname === toHref(sub.path)
                                 ? 'bg-[#EEF5ED] text-[#0A4E35] font-semibold'
                                 : 'text-slate-600 hover:bg-[#EEF5ED] hover:text-[#0A4E35]'
                             }`}
                           >
                             {sub.label}
-                          </button>
+                          </Link>
                         ))}
                       </div>
 
                       {/* Right edge slanted ribbon segment */}
-                      <div 
+                      <div
                         className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-b from-[#0f5237] to-[#05261a] pointer-events-none z-20"
                         style={{
                           clipPath: 'polygon(33.33% 0, 120% 0, 120% 100%, 0 100%)'
@@ -216,7 +217,8 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
                 </AnimatePresence>
               )}
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* Mobile Hamburger Button */}
@@ -239,44 +241,44 @@ export default function Header({ activeTab, setActiveTab, headerData }: HeaderPr
             transition={{ duration: 0.2 }}
             className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl py-6 px-6 flex flex-col gap-4"
           >
-            {navItems.map((item, idx) => (
-              <div key={`${item.id}-${idx}`} className="flex flex-col gap-1">
-                <button
-                  onClick={() => {
-                    if (item.hasSubMenu) {
-                      // Handled by sub-buttons click directly
-                    } else {
-                      handleNavClick(item.id);
-                    }
-                  }}
-                  className={`text-left py-3 px-4 rounded-xl text-[15px] font-semibold transition-all ${
-                    activeTab === item.id || item.subMenuItems?.some((sub: any) => activeTab === sub.tabId)
+            {navItems.map((item, idx) => {
+              const itemHref = toHref(item.path);
+              const isActive = pathname === itemHref || item.subMenuItems?.some((sub: any) => pathname === toHref(sub.path));
+              return (
+              <div key={`${item.path}-${idx}`} className="flex flex-col gap-1">
+                <Link
+                  href={itemHref}
+                  onClick={closeMobileMenu}
+                  className={`text-left py-3 px-4 rounded-xl text-[15px] font-semibold transition-all block ${
+                    isActive
                       ? 'bg-[#EEF5ED] text-[#0A4E35] font-bold border-l-4 border-[#B48F57]'
                       : 'text-slate-600 hover:bg-gray-50 hover:text-[#0A4E35]'
                   }`}
                 >
                   {item.label}
-                </button>
+                </Link>
 
                 {item.hasSubMenu && item.subMenuItems && (
                   <div className="pl-6 pr-4 py-1 flex flex-col gap-1 border-l border-gray-100 ml-4 mt-1">
                     {item.subMenuItems.map((sub: any, sIdx: number) => (
-                      <button
-                        key={`${sub.tabId}-${sIdx}`}
-                        onClick={() => handleNavClick(sub.tabId)}
-                        className={`text-left py-2.5 px-3 rounded-lg text-xs font-sans font-medium transition-all cursor-pointer ${
-                          activeTab === sub.tabId
+                      <Link
+                        key={`${sub.path}-${sIdx}`}
+                        href={toHref(sub.path)}
+                        onClick={closeMobileMenu}
+                        className={`text-left py-2.5 px-3 rounded-lg text-xs font-sans font-medium transition-all cursor-pointer block ${
+                          pathname === toHref(sub.path)
                             ? 'bg-[#EEF5ED] text-[#0A4E35] font-semibold'
                             : 'text-slate-500 hover:text-[#0A4E35]'
                         }`}
                       >
                         {sub.label}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,7 +1,8 @@
 import React from 'react';
 import '../../index.css';
-import { getHeader, getFooter, getPage, getPosts, getCareers, HeaderGlobal, FooterGlobal, PageDoc } from '../../lib/payloadApi';
-import App from '../../App';
+import { getHeader, getFooter } from '../../lib/payloadApi';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { Playfair_Display, Roboto, Roboto_Mono } from 'next/font/google';
 
 const playfair = Playfair_Display({
@@ -27,7 +28,7 @@ const robotoMono = Roboto_Mono({
 import type { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headerData: HeaderGlobal | null = await getHeader();
+  const headerData = await getHeader();
   return {
     title: headerData?.siteTitle ?? 'GAMA.vn - Nơi chuyên môn hóa học kiến tạo tương lai',
     description: headerData?.siteDescription ?? 'GAMA cung cấp giải pháp sơn phủ, chống thấm kiến trúc và công nghiệp cao cấp tiêu chuẩn xanh.',
@@ -45,23 +46,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Fetch all data server-side in parallel — arrives with the initial HTML, no client spinner
-  const [headerData, footerData, homePage, initialPosts, initialJobs] = await Promise.all([
-    getHeader(),
-    getFooter(),
-    getPage('home'),
-    getPosts(),
-    getCareers(),
-  ]);
+  const [headerData, footerData] = await Promise.all([getHeader(), getFooter()]);
 
   return (
     <html lang="vi" className={`${playfair.variable} ${roboto.variable} ${robotoMono.variable}`}>
       <body className="antialiased">
-        <App headerData={headerData} footerData={footerData} homePage={homePage} initialPosts={initialPosts} initialJobs={initialJobs} />
-        {children}
+        <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col justify-between selection:bg-[#93CC88]/20 selection:text-[#1E463E]">
+          <Header headerData={headerData} />
+          <main className="flex-grow">{children}</main>
+          <Footer footerData={footerData} />
+        </div>
       </body>
     </html>
   );
 }
-
-

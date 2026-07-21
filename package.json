@@ -9,6 +9,7 @@
     "start": "next start --port=3000",
     "lint": "next lint",
     "seed": "tsx src/lib/seed.ts",
+    "backfill-slugs": "tsx src/lib/backfillSlugs.ts",
     "sync-media": "tsx src/lib/syncMedia.ts",
     "upload-media": "tsx src/lib/uploadMediaToBlob.ts",
     "migrate-media-urls": "tsx src/lib/migrateMediaUrls.ts",

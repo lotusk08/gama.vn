@@ -1,4 +1,5 @@
 import { CollectionConfig } from 'payload';
+import { slugifyField } from './slugify';
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -7,7 +8,7 @@ export const Posts: CollectionConfig = {
     livePreview: {
       url: ({ data }) => {
         const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
-        return `${baseUrl}/?tab=blog&post=${data.id}&preview=true`;
+        return `${baseUrl}/blog/${data.slug}?preview=true`;
       },
     },
   },
@@ -16,6 +17,7 @@ export const Posts: CollectionConfig = {
   },
   fields: [
     { name: 'title', type: 'text', required: true },
+    slugifyField(),
     { name: 'excerpt', type: 'textarea', required: true },
     { name: 'featuredImage', type: 'upload', relationTo: 'media' },
     { name: 'content', type: 'richText', required: true },
