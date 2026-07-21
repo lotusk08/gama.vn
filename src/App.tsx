@@ -280,7 +280,7 @@ export default function App({ headerData, footerData, homePage, initialPosts = [
                   </div>
 
                   <div className="z-10 max-w-3xl flex flex-col items-center">
-                    <h2 className="text-3xl sm:text-[48px] lg:text-[56px] font-serif font-extrabold text-white leading-[1.1] mb-6 whitespace-pre-line">
+                    <h2 className="text-3xl sm:text-[48px] lg:text-[56px] font-serif font-extrabold effect-font-gama-light leading-[1.1] mb-6 whitespace-pre-line">
                       {ctaHeadline}
                     </h2>
                     <p className="text-xs sm:text-sm md:text-base text-gray-300 font-sans leading-relaxed mb-10 max-w-xl font-light whitespace-pre-line">

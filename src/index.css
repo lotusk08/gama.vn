@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-serif), serif;
-  --font-mono: var(--font-mono), monospace;
+:root {
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-serif: serif;
+  --font-mono: monospace;
 
   /* GAMA Corporate Palette Theme Variables */
   --color-gama-green-dark: #0a4e35;
@@ -13,7 +13,7 @@
   --color-gama-gold-dark: #a27b46;
 }
 
-@utility effect-font-gama {
+.effect-font-gama {
   background: linear-gradient(135deg, var(--color-gama-green-dark) 0%, var(--color-gama-green-medium) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -22,13 +22,81 @@
   display: inline-block;
 }
 
+.effect-font-gama-light {
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF5ED 55%, #B48F57 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.effect-font-gama-gold {
+  background: linear-gradient(135deg, #FFF4E0 0%, #D4AF37 50%, #B48F57 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+.effect-font-none {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: inherit;
+  display: inline;
+}
+
 h1,
 h2,
 h3 {
-  @apply effect-font-gama;
+  background: linear-gradient(135deg, var(--color-gama-green-dark) 0%, var(--color-gama-green-medium) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
 }
 
-@utility effect-font-styling {
+.dark h1, .dark h2, .dark h3,
+.dark-section h1, .dark-section h2, .dark-section h3,
+[class*="bg-[#05473E]"] h1, [class*="bg-[#05473E]"] h2, [class*="bg-[#05473E]"] h3,
+[class*="bg-[#02221C]"] h1, [class*="bg-[#02221C]"] h2, [class*="bg-[#02221C]"] h3,
+[class*="bg-[#0A4E35]"] h1, [class*="bg-[#0A4E35]"] h2, [class*="bg-[#0A4E35]"] h3,
+[class*="bg-[#051F16]"] h1, [class*="bg-[#051F16]"] h2, [class*="bg-[#051F16]"] h3,
+[class*="bg-[#03140F]"] h1, [class*="bg-[#03140F]"] h2, [class*="bg-[#03140F]"] h3,
+[class*="bg-[#101720]"] h1, [class*="bg-[#101720]"] h2, [class*="bg-[#101720]"] h3,
+[class*="bg-slate-900"] h1, [class*="bg-slate-900"] h2, [class*="bg-slate-900"] h3,
+[class*="bg-black"] h1, [class*="bg-black"] h2, [class*="bg-black"] h3,
+h1.text-white, h2.text-white, h3.text-white,
+h1.text-slate-100, h2.text-slate-100, h3.text-slate-100,
+h1.text-slate-200, h2.text-slate-200, h3.text-slate-200,
+h1.effect-font-gama-light, h2.effect-font-gama-light, h3.effect-font-gama-light {
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF5ED 55%, #B48F57 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+h1.effect-font-gama-gold, h2.effect-font-gama-gold, h3.effect-font-gama-gold {
+  background: linear-gradient(135deg, #FFF4E0 0%, #D4AF37 50%, #B48F57 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+h1.effect-font-none, h2.effect-font-none, h3.effect-font-none {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: inherit;
+  display: inline;
+}
+
+.effect-font-styling {
   letter-spacing: -0.02em;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

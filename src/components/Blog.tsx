@@ -665,7 +665,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
                     <FileText className="w-4 h-4" />
                     <span>Scientific Publication Ledger</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white">
+                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold effect-font-gama-light">
                     Submit Technical Log
                   </h3>
                 </div>

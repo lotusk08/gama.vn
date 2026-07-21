@@ -422,7 +422,7 @@ export default function Careers({ initialJobs = [] }: CareersProps) {
                     <Briefcase className="w-4 h-4" />
                     <span>Cổng tiếp nhận hồ sơ ứng viên GAMA</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white">
+                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold effect-font-gama-light">
                     {selectedJob.title}
                   </h3>
                 </div>
@@ -571,7 +571,7 @@ export default function Careers({ initialJobs = [] }: CareersProps) {
                     <Settings className="w-4 h-4" />
                     <span>Payload CMS Careers Integration Ledger</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold text-white">
+                  <h3 className="text-xl sm:text-2xl font-serif font-extrabold effect-font-gama-light">
                     API Configuration Guidelines
                   </h3>
                 </div>

@@ -226,7 +226,7 @@ export default function ContactSection() {
                 <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mb-6">
                   <CheckCircle className="w-8 h-8" />
                 </div>
-                <h3 className="font-sans font-bold text-slate-900 text-lg mb-2">Gửi yêu cầu thành công</h3>
+                <h3 className="font-sans font-bold text-slate-900 effect-font-none text-lg mb-2">Gửi yêu cầu thành công</h3>
                 <p className="text-xs text-gray-500 font-sans max-w-sm leading-relaxed mb-6 font-light">
                   Cảm ơn bạn. Yêu cầu liên hệ của bạn đã được ghi nhận vào hệ thống. Ban thư ký điều hành GAMA sẽ xử lý và phản hồi trong vòng 24 giờ làm việc.
                 </p>

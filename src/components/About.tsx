@@ -374,7 +374,7 @@ export default function About() {
             </div>
             <div>
               <span className="text-[10px] font-mono font-bold text-[#B48F57] uppercase tracking-widest block mb-2">SỨ MỆNH THIÊNG LIÊNG</span>
-              <h3 className="font-serif font-extrabold text-[#EEF5ED] text-2xl sm:text-3xl mb-4 leading-tight">
+              <h3 className="font-serif font-extrabold effect-font-gama-light text-2xl sm:text-3xl mb-4 leading-tight">
                 Sự bảo vệ khoa học không thỏa hiệp
               </h3>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed font-light">
