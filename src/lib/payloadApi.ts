@@ -31,17 +31,17 @@ export interface HeaderGlobal {
   logo?: { url?: string | null; alt?: string } | null;
   navItems: {
     label: string;
-    tabId: string;
+    path: string;
     id?: string | null;
     hasSubMenu?: boolean | null;
-    subMenuItems?: { label: string; tabId: string; id?: string | null }[] | null;
+    subMenuItems?: { label: string; path: string; id?: string | null }[] | null;
   }[];
   topBarTicker?: {
     stockSymbol?: string | null;
     stockChange?: string | null;
     certificationText?: string | null;
   };
-  topBarLinks?: { label: string; tabId: string; id?: string | null }[];
+  topBarLinks?: { label: string; path: string; id?: string | null }[];
 }
 
 export interface FooterGlobal {
@@ -59,7 +59,7 @@ export interface FooterGlobal {
   copyright?: string;
   newsletterTitle?: string;
   newsletterText?: string;
-  footerLinks?: { label: string; tabId: string; id?: string | null }[];
+  footerLinks?: { label: string; path: string; id?: string | null }[];
   certifications?: { label: string; icon?: string; id?: string | null }[];
 }
 
@@ -69,11 +69,28 @@ export interface PageBlock {
   [key: string]: unknown;
 }
 
+export interface PageSeo {
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  ogImage?: { url?: string | null } | null;
+}
+
 export interface PageDoc {
   id: string;
   title: string;
   slug: string;
+  seo?: PageSeo | null;
   layout: PageBlock[];
+}
+
+export interface PolicyDoc {
+  id: string;
+  key: string;
+  title: string;
+  subTitle: string;
+  introduction: string;
+  content: unknown;
+  seo?: { metaTitle?: string | null; metaDescription?: string | null } | null;
 }
 
 // ─── Public helpers ────────────────────────────────────────────────────────
@@ -108,15 +125,15 @@ export async function getFooter(): Promise<FooterGlobal | null> {
   }
 }
 
-/** Fetch a Pages document by slug */
-export async function getPage(slug: string): Promise<PageDoc | null> {
+/** Fetch a Pages document by its URL path (the `slug` field). */
+export async function getPageByPath(path: string): Promise<PageDoc | null> {
   try {
     const payload = await getPayloadClient();
     const data = await payload.find({
       collection: 'pages',
       where: {
         slug: {
-          equals: slug,
+          equals: path,
         },
       },
       depth: 2,
@@ -124,8 +141,28 @@ export async function getPage(slug: string): Promise<PageDoc | null> {
     });
     return (data.docs?.[0] as PageDoc) ?? null;
   } catch (err) {
-    console.error(`Error fetching page ${slug}:`, err);
+    console.error(`Error fetching page ${path}:`, err);
     return null;
+  }
+}
+
+/** @deprecated use getPageByPath */
+export const getPage = getPageByPath;
+
+/** List every Pages document's slug (for generateStaticParams). */
+export async function getAllPageSlugs(): Promise<string[]> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'pages',
+      limit: 200,
+      depth: 0,
+      select: { slug: true },
+    });
+    return data.docs.map((d: any) => d.slug).filter(Boolean);
+  } catch (err) {
+    console.error('Error fetching page slugs:', err);
+    return [];
   }
 }
 
@@ -157,6 +194,7 @@ function transformServerPost(doc: any): BlogPost {
 
   return {
     id: String(doc.id || doc._id || Math.random()),
+    slug: doc.slug || String(doc.id || doc._id),
     title: doc.title || 'Untitled Post',
     excerpt: doc.excerpt || '',
     content: contentHtml || '<p style="color:#999;">Nội dung chưa được cập nhật.</p>',
@@ -200,6 +238,7 @@ function transformServerJob(doc: any): JobOpening {
 
   return {
     id: String(doc.id || doc._id || Math.random()),
+    slug: doc.slug || String(doc.id || doc._id),
     title: doc.title || 'Untitled Position',
     department: doc.department || 'General',
     location: doc.location || 'GAMA Office',
@@ -223,5 +262,80 @@ export async function getCareers(): Promise<JobOpening[]> {
   } catch (err) {
     console.error('[payloadApi] Error fetching careers:', err);
     return [];
+  }
+}
+
+/** Fetch a single blog post by its slug. */
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'posts',
+      // Falls back to matching by id — covers legacy docs created before the
+      // `slug` field existed, whose slug is still empty until re-saved.
+      where: { or: [{ slug: { equals: slug } }, { id: { equals: slug } }] },
+      depth: 1,
+      limit: 1,
+    });
+    const doc = data.docs?.[0];
+    return doc ? transformServerPost(doc) : null;
+  } catch (err) {
+    console.error(`[payloadApi] Error fetching post ${slug}:`, err);
+    return null;
+  }
+}
+
+/** Fetch a single job opening by its slug. */
+export async function getJobBySlug(slug: string): Promise<JobOpening | null> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'careers',
+      // Falls back to matching by id — covers legacy docs created before the
+      // `slug` field existed, whose slug is still empty until re-saved.
+      where: { or: [{ slug: { equals: slug } }, { id: { equals: slug } }] },
+      depth: 1,
+      limit: 1,
+    });
+    const doc = data.docs?.[0];
+    return doc ? transformServerJob(doc) : null;
+  } catch (err) {
+    console.error(`[payloadApi] Error fetching job ${slug}:`, err);
+    return null;
+  }
+}
+
+// ─── Policies ──────────────────────────────────────────────────────────────
+
+/** Fetch all corporate policy documents. */
+export async function getPolicies(): Promise<PolicyDoc[]> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'policies',
+      limit: 100,
+      depth: 0,
+    });
+    return data.docs as PolicyDoc[];
+  } catch (err) {
+    console.error('[payloadApi] Error fetching policies:', err);
+    return [];
+  }
+}
+
+/** Fetch a single corporate policy by its `key`. */
+export async function getPolicyByKey(key: string): Promise<PolicyDoc | null> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'policies',
+      where: { key: { equals: key } },
+      depth: 0,
+      limit: 1,
+    });
+    return (data.docs?.[0] as PolicyDoc) ?? null;
+  } catch (err) {
+    console.error(`[payloadApi] Error fetching policy ${key}:`, err);
+    return null;
   }
 }

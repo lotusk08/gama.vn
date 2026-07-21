@@ -4,8 +4,8 @@ import { motion } from 'motion/react';
 import { ArrowRight, ChevronDown, CheckCircle, Paintbrush, ShieldCheck, Leaf } from 'lucide-react';
 
 interface HeroProps {
-  onExploreServices: () => void;
-  onExploreWork: () => void;
+  onExploreServices?: () => void;
+  onExploreWork?: () => void;
   data?: {
     title?: string;
     subtitle?: string;
@@ -21,6 +21,13 @@ interface HeroProps {
 }
 
 export default function Hero({ onExploreServices, onExploreWork, data }: HeroProps) {
+  const scrollToNextSection = () => {
+    if (typeof window === 'undefined') return;
+    window.scrollBy({ top: window.innerHeight * 0.85, behavior: 'smooth' });
+  };
+  const handlePrimary = onExploreServices ?? scrollToNextSection;
+  const handleSecondary = onExploreWork ?? scrollToNextSection;
+
   const defaultBanner = '/api/media/file/hero-banner.jpg';
   const [heroBanner, setHeroBanner] = React.useState(defaultBanner);
 
@@ -111,14 +118,14 @@ export default function Hero({ onExploreServices, onExploreWork, data }: HeroPro
             className="flex flex-wrap gap-4"
           >
             <button
-              onClick={onExploreServices}
+              onClick={handlePrimary}
               className="px-8 py-4 bg-[#0A4E35] hover:bg-[#05473E] text-white font-bold text-xs tracking-wider uppercase rounded-full transition-all duration-300 cursor-pointer shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 group"
             >
               <span>{ctaPrimary}</span>
               <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              onClick={onExploreWork}
+              onClick={handleSecondary}
               className="px-8 py-4 bg-white hover:bg-gray-50 text-[#0A4E35] border border-gray-200 font-bold text-xs tracking-wider uppercase rounded-full transition-all duration-300 cursor-pointer shadow-sm active:scale-95"
             >
               {ctaSecondary}
@@ -178,7 +185,7 @@ export default function Hero({ onExploreServices, onExploreWork, data }: HeroPro
       </div>
 
       {/* Down Scroll Anchor */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer hidden md:flex" onClick={onExploreServices}>
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer hidden md:flex" onClick={handlePrimary}>
         <span className="text-[10px] text-[#0A4E35] font-bold uppercase tracking-widest">Cuộn xuống</span>
         <motion.div
           animate={{ y: [0, 5, 0] }}

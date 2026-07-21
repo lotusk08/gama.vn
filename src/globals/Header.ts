@@ -36,9 +36,13 @@ export const Header: GlobalConfig = {
           required: true,
         },
         {
-          name: 'tabId',
+          name: 'path',
+          label: 'URL Path',
           type: 'text',
           required: true,
+          admin: {
+            description: 'Relative URL path this link points to, e.g. "about" or "" for home.',
+          },
         },
         {
           name: 'hasSubMenu',
@@ -60,7 +64,8 @@ export const Header: GlobalConfig = {
               required: true,
             },
             {
-              name: 'tabId',
+              name: 'path',
+              label: 'URL Path',
               type: 'text',
               required: true,
             },
@@ -88,7 +93,7 @@ export const Header: GlobalConfig = {
       type: 'array',
       fields: [
         { name: 'label', type: 'text', required: true },
-        { name: 'tabId', type: 'text', required: true },
+        { name: 'path', label: 'URL Path', type: 'text', required: true },
       ],
     },
   ],
