@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { getPayload } from 'payload';
 import configPromise from '../../payload.config';
-import { INITIAL_BLOG_POSTS, INITIAL_JOB_OPENINGS } from './payload';
+
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -344,84 +344,11 @@ async function seed() {
     console.log('Admin user already exists in database.');
   }
 
-  // 2. Seed Blog Posts
-  const postsCount = await payload.find({
-    collection: 'posts',
-    limit: 1,
-  });
+  // 2. Blog Posts — seeded via Payload Admin with real content
+  console.log('Skipping blog post seed (add content via Payload Admin).');
 
-  if (postsCount.totalDocs === 0) {
-    console.log('Seeding initial blog posts...');
-    for (const post of INITIAL_BLOG_POSTS) {
-      await payload.create({
-        collection: 'posts',
-        data: {
-          title: post.title,
-          excerpt: post.excerpt,
-          content: {
-            root: {
-              type: 'root',
-              format: '',
-              indent: 0,
-              version: 1,
-              children: [
-                {
-                  type: 'paragraph',
-                  format: '',
-                  indent: 0,
-                  version: 1,
-                  children: [
-                    {
-                      type: 'text',
-                      text: post.content,
-                      version: 1,
-                    }
-                  ]
-                }
-              ]
-            }
-          } as any,
-          category: post.category,
-          date: post.date,
-          readTime: post.readTime,
-          author: {
-            name: post.author.name,
-            role: post.author.role,
-          },
-        },
-      });
-    }
-    console.log(`Seeded ${INITIAL_BLOG_POSTS.length} blog posts.`);
-  } else {
-    console.log('Blog posts already exist in database.');
-  }
-
-  // 3. Seed Careers
-  const careersCount = await payload.find({
-    collection: 'careers',
-    limit: 1,
-  });
-
-  if (careersCount.totalDocs === 0) {
-    console.log('Seeding initial careers...');
-    for (const job of INITIAL_JOB_OPENINGS) {
-      await payload.create({
-        collection: 'careers',
-        data: {
-          title: job.title,
-          department: job.department,
-          location: job.location,
-          type: job.type as any,
-          description: job.description,
-          responsibilities: job.responsibilities.map(r => ({ responsibility: r })),
-          requirements: job.requirements.map(req => ({ requirement: req })),
-        },
-      });
-    }
-    console.log(`Seeded ${INITIAL_JOB_OPENINGS.length} job openings.`);
-  } else {
-    console.log('Careers already exist in database.');
-  }
+  // 3. Careers — seeded via Payload Admin with real content
+  console.log('Skipping careers seed (add job openings via Payload Admin).');
 
   // 4. Seed Corporate Policies
   console.log('Seeding initial policies...');

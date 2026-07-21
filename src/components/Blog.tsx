@@ -27,14 +27,20 @@ import {
   fetchBlogPosts,
   createBlogPost,
   resetLocalPosts,
-  PAYLOAD_CMS_URL
+  PAYLOAD_CMS_URL,
+  lexicalToHtml
 } from '../lib/payload';
 import { useLivePreview } from '@payloadcms/live-preview-react';
 
-export default function Blog() {
+interface BlogProps {
+  initialPosts?: BlogPost[];
+}
+
+export default function Blog({ initialPosts = [] }: BlogProps) {
   // State variables
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
+  // Only show loading spinner when no server-side data was provided
+  const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'Science' | 'Color' | 'Industry' | 'Business'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -71,8 +77,12 @@ export default function Blog() {
     }
   };
 
+  // Only fetch on the client if no server-side initial data was provided
   useEffect(() => {
-    loadPostsData();
+    if (initialPosts.length === 0) {
+      loadPostsData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Parse the ?post parameter from url on mount/posts load (crucial for Payload CMS Live Preview of blog posts)
@@ -89,14 +99,29 @@ export default function Blog() {
     }
   }, [posts]);
 
-  // Hook up selected blog post to realtime Payload Live Preview updates
+  // Hook up selected blog post to realtime Payload Live Preview updates.
+  // useLivePreview listens for postMessage events from the Payload admin iframe.
+  // In normal production (non-preview), it returns initialData unchanged.
   const { data: livePost } = useLivePreview({
     initialData: (selectedPost || { id: 'blog-post-preview' }) as any,
     serverURL: PAYLOAD_CMS_URL,
     depth: 2,
   });
 
-  const displayPost = livePost || selectedPost;
+  // Only trust livePost when it contains real Payload document data (has a title field).
+  // Without this guard, the stale placeholder { id: 'blog-post-preview' } spreads over
+  // selectedPost and wipes out title, author, excerpt in production.
+  const hasLivePreviewData = livePost && typeof (livePost as any).title === 'string';
+  const displayPost: BlogPost | null = hasLivePreviewData
+    ? {
+        ...livePost,
+        // content from livePost may be raw Lexical JSON — convert it
+        content:
+          typeof (livePost as any).content === 'object' && (livePost as any).content !== null
+            ? lexicalToHtml((livePost as any).content)
+            : (livePost as any).content ?? selectedPost?.content ?? '',
+      } as BlogPost
+    : selectedPost;
 
   // Tracking article scroll progress using the main window scroll instead of a restricted nested container
   useEffect(() => {
@@ -141,10 +166,10 @@ export default function Blog() {
     });
   };
 
-  // Reset demo posts
+  // Clear local cache and reload fresh data from the server
   const handleResetDemo = () => {
-    const freshPosts = resetLocalPosts();
-    setPosts(freshPosts);
+    resetLocalPosts();
+    loadPostsData();
   };
 
   // Submit new article
@@ -556,7 +581,7 @@ export default function Blog() {
                  </div>
 
                 {/* Immersive reading markdown/text space with stylized elements */}
-                <div className="font-sans text-sm sm:text-base text-[#0A4E35]/90 leading-relaxed whitespace-pre-line pr-4 flex flex-col gap-6 font-light">
+                <div className="font-sans text-sm sm:text-base text-[#0A4E35]/90 leading-relaxed pr-4 flex flex-col gap-6">
 
                   {/* Decorative introduction callout block */}
                   <p className="font-serif italic text-base sm:text-lg text-[#0A4E35] border-l-4 border-[#B48F57] pl-5 py-2 my-2 bg-slate-50 rounded-r-xl pr-3 leading-relaxed">

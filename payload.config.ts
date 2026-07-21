@@ -32,6 +32,9 @@ const storagePlugins = useVercelBlob
           media: true,
         },
         token: process.env.BLOB_READ_WRITE_TOKEN || '',
+        // addRandomSuffix ensures every upload gets a unique filename even
+        // if the same file name is re-used — prevents the 500 "blob already exists" error.
+        addRandomSuffix: true,
         // clientUploads: true routes file data directly from the browser
         // to Vercel Blob, bypassing the server-side buffer entirely.
         // This is REQUIRED to avoid the SharedArrayBuffer error that occurs

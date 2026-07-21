@@ -16,26 +16,11 @@ export const Media: CollectionConfig = {
     // Disable local disk storage only in production when Vercel Blob is active.
     disableLocalStorage: useVercelBlob,
     mimeTypes: ['image/*', 'video/*', 'application/pdf'],
-    imageSizes: [
-      {
-        name: 'thumbnail',
-        width: 400,
-        height: 300,
-        position: 'centre',
-      },
-      {
-        name: 'card',
-        width: 800,
-        height: 600,
-        position: 'centre',
-      },
-      {
-        name: 'hero',
-        width: 1920,
-        height: 1080,
-        position: 'centre',
-      },
-    ],
+    // imageSizes removed: generating resized variants requires Payload to download
+    // the blob server-side (via fetch → ArrayBuffer), which triggers the
+    // SharedArrayBuffer restriction in Vercel's serverless runtime.
+    // Original images are served directly from Vercel Blob CDN; use the
+    // Next.js <Image> component for on-the-fly optimisation where needed.
   },
   access: {
     read: () => true,

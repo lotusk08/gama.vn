@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import CorporatePolicies, { PolicyKey } from './components/CorporatePolicies';
 import Process from './components/Process';
 import type { HeaderGlobal, FooterGlobal, PageDoc } from './lib/payloadApi';
+import type { BlogPost, JobOpening } from './types';
 import { PAYLOAD_CMS_URL, lexicalToHtml } from './lib/payload';
 import { useLivePreview } from '@payloadcms/live-preview-react';
 
@@ -25,6 +26,8 @@ interface AppProps {
   headerData?: HeaderGlobal | null;
   footerData?: FooterGlobal | null;
   homePage?: PageDoc | null;
+  initialPosts?: BlogPost[];
+  initialJobs?: JobOpening[];
 }
 
 const iconMap = {
@@ -34,7 +37,7 @@ const iconMap = {
   Globe: <Globe className="w-6 h-6 text-[#0A4E35] group-hover:text-white transition-colors duration-300" />,
 };
 
-export default function App({ headerData, footerData, homePage }: AppProps = {}) {
+export default function App({ headerData, footerData, homePage, initialPosts = [], initialJobs = [] }: AppProps = {}) {
   const [activeTab, setActiveTab] = useState<string>('home');
   const [customPages, setCustomPages] = useState<any[]>([]);
   const [loadingPages, setLoadingPages] = useState<boolean>(true);
@@ -340,7 +343,7 @@ export default function App({ headerData, footerData, homePage }: AppProps = {})
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
             >
-              <Blog />
+              <Blog initialPosts={initialPosts} />
             </motion.div>
           )}
 
@@ -352,7 +355,7 @@ export default function App({ headerData, footerData, homePage }: AppProps = {})
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
             >
-              <Careers />
+              <Careers initialJobs={initialJobs} />
             </motion.div>
           )}
 

@@ -8,6 +8,8 @@
 
 import { getPayload } from 'payload';
 import configPromise from '../../payload.config';
+import { lexicalToHtml } from './payload';
+import type { BlogPost, JobOpening } from '../types';
 
 let payloadInstance: any = null;
 
@@ -133,4 +135,93 @@ export function findBlock<T extends PageBlock>(
   blockType: string,
 ): (T & PageBlock) | undefined {
   return layout?.find((b) => b.blockType === blockType) as T & PageBlock | undefined;
+}
+
+// ─── Blog Posts ────────────────────────────────────────────────────────────
+
+function transformServerPost(doc: any): BlogPost {
+  let contentHtml = '';
+  if (typeof doc.content === 'string') {
+    contentHtml = doc.content
+      .split(/\n\n+/)
+      .filter((p: string) => p.trim())
+      .map((p: string) => `<p style="margin-bottom:1rem;line-height:1.8;">${p.trim().replace(/\n/g, '<br />')}</p>`)
+      .join('');
+  } else if (doc.content && typeof doc.content === 'object') {
+    contentHtml = lexicalToHtml(doc.content);
+  }
+
+  const wordCount = contentHtml.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+  const authorName: string = doc.author?.name || 'GAMA Contributor';
+  const authorRole: string = doc.author?.role || 'Technical Specialist';
+
+  return {
+    id: String(doc.id || doc._id || Math.random()),
+    title: doc.title || 'Untitled Post',
+    excerpt: doc.excerpt || '',
+    content: contentHtml || '<p style="color:#999;">Nội dung chưa được cập nhật.</p>',
+    category: (doc.category || 'Science') as BlogPost['category'],
+    date: doc.date || (doc.createdAt
+      ? new Date(doc.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })
+      : ''),
+    readTime: doc.readTime || `${Math.max(2, Math.ceil(wordCount / 200))} phút đọc`,
+    author: { name: authorName, role: authorRole },
+  };
+}
+
+/** Fetch all published blog posts server-side via Payload local API (no HTTP). */
+export async function getPosts(): Promise<BlogPost[]> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'posts',
+      limit: 100,
+      depth: 1,
+      sort: '-createdAt',
+    });
+    return data.docs.map(transformServerPost);
+  } catch (err) {
+    console.error('[payloadApi] Error fetching posts:', err);
+    return [];
+  }
+}
+
+// ─── Job Openings ──────────────────────────────────────────────────────────
+
+function transformServerJob(doc: any): JobOpening {
+  const mapStringArray = (arr: any, key: string): string[] => {
+    if (!arr || !Array.isArray(arr)) return [];
+    return arr.map((item: any) => {
+      if (typeof item === 'string') return item;
+      if (item && typeof item === 'object') return item[key] || item.text || item.value || '';
+      return '';
+    }).filter(Boolean);
+  };
+
+  return {
+    id: String(doc.id || doc._id || Math.random()),
+    title: doc.title || 'Untitled Position',
+    department: doc.department || 'General',
+    location: doc.location || 'GAMA Office',
+    type: doc.type || 'Toàn thời gian',
+    description: doc.description || '',
+    requirements: mapStringArray(doc.requirements, 'requirement'),
+    responsibilities: mapStringArray(doc.responsibilities, 'responsibility'),
+  };
+}
+
+/** Fetch all job openings server-side via Payload local API (no HTTP). */
+export async function getCareers(): Promise<JobOpening[]> {
+  try {
+    const payload = await getPayloadClient();
+    const data = await payload.find({
+      collection: 'careers',
+      limit: 100,
+      depth: 1,
+    });
+    return data.docs.map(transformServerJob);
+  } catch (err) {
+    console.error('[payloadApi] Error fetching careers:', err);
+    return [];
+  }
 }

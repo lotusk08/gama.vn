@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../index.css';
-import { getHeader, getFooter, getPage, HeaderGlobal, FooterGlobal, PageDoc } from '../../lib/payloadApi';
+import { getHeader, getFooter, getPage, getPosts, getCareers, HeaderGlobal, FooterGlobal, PageDoc } from '../../lib/payloadApi';
 import App from '../../App';
 import { Playfair_Display, Roboto, Roboto_Mono } from 'next/font/google';
 
@@ -45,15 +45,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Fetch globals and home page data server-side
-  const headerData: HeaderGlobal | null = await getHeader();
-  const footerData: FooterGlobal | null = await getFooter();
-  const homePage: PageDoc | null = await getPage('home');
+  // Fetch all data server-side in parallel — arrives with the initial HTML, no client spinner
+  const [headerData, footerData, homePage, initialPosts, initialJobs] = await Promise.all([
+    getHeader(),
+    getFooter(),
+    getPage('home'),
+    getPosts(),
+    getCareers(),
+  ]);
 
   return (
     <html lang="vi" className={`${playfair.variable} ${roboto.variable} ${robotoMono.variable}`}>
       <body className="antialiased">
-        <App headerData={headerData} footerData={footerData} homePage={homePage} />
+        <App headerData={headerData} footerData={footerData} homePage={homePage} initialPosts={initialPosts} initialJobs={initialJobs} />
         {children}
       </body>
     </html>

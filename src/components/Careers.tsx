@@ -30,9 +30,14 @@ import {
   PayloadStatus 
 } from '../lib/payload';
 
-export default function Careers() {
-  const [jobOpenings, setJobOpenings] = useState<JobOpening[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+interface CareersProps {
+  initialJobs?: JobOpening[];
+}
+
+export default function Careers({ initialJobs = [] }: CareersProps) {
+  const [jobOpenings, setJobOpenings] = useState<JobOpening[]>(initialJobs);
+  // Only show loading spinner when no server-side data was provided
+  const [loading, setLoading] = useState<boolean>(false);
   const [selectedJob, setSelectedJob] = useState<JobOpening | null>(null);
   const [formSuccess, setFormSuccess] = useState(false);
   const [formError, setFormError] = useState('');
@@ -63,8 +68,12 @@ export default function Careers() {
     }
   };
 
+  // Only fetch on the client if no server-side initial data was provided
   useEffect(() => {
-    loadJobData();
+    if (initialJobs.length === 0) {
+      loadJobData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const copyCareersSchema = () => {
@@ -117,9 +126,10 @@ export default function Careers() {
     });
   };
 
+  // Clear local cache and reload fresh data from the server
   const handleResetDemo = () => {
-    const freshJobs = resetLocalCareers();
-    setJobOpenings(freshJobs);
+    resetLocalCareers();
+    loadJobData();
   };
 
 
