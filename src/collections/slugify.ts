@@ -1,6 +1,6 @@
 import { Field } from 'payload';
 
-function toSlug(value: string): string {
+export function toSlug(value: string): string {
   return value
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
@@ -22,9 +22,10 @@ export function slugifyField(): Field {
     },
     hooks: {
       beforeValidate: [
-        ({ value, data }) => {
+        ({ value, data, originalDoc }) => {
           if (value) return toSlug(value);
-          if (data?.title) return toSlug(data.title);
+          const title = data?.title ?? originalDoc?.title;
+          if (title) return toSlug(title);
           return value;
         },
       ],
